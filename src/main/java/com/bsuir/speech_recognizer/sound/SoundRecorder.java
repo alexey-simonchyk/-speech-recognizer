@@ -53,6 +53,11 @@ public class SoundRecorder {
     }
 
     public byte[] getBytes() {
+
+        //TODO: Временно
+        lastRecord = new File("temp.wav");
+
+
         byte[] result = null;
 
         if (lastRecord == null) {
@@ -67,10 +72,11 @@ public class SoundRecorder {
             audioInputStream = AudioSystem.getAudioInputStream(lastRecord);
 
             framesCount = audioInputStream.getFrameLength(); // number frames
-            System.out.println(framesCount);
+
             dataLength = framesCount * SAMPLE_SIZE_IN_BITS * NUMBER_CHANNELS / 8;
 
             result = new byte[(int) dataLength];
+
             audioInputStream.read(result);
 
         } catch (UnsupportedAudioFileException | IOException exception) {
