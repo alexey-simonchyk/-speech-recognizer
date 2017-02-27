@@ -2,6 +2,7 @@ package com.bsuir.speech_recognizer.sound.logic;
 
 import com.bsuir.speech_recognizer.sound.SoundFrame;
 import com.bsuir.speech_recognizer.sound.Speech;
+import com.bsuir.speech_recognizer.sound.Word;
 
 import java.util.ArrayList;
 
@@ -30,6 +31,38 @@ public class AudioSplitter {
             result.add(soundFrame);
             currentPosition += SoundFrame.FRAME_SHIFT;
         }
+        return result;
+    }
+
+    public ArrayList<Word> splitFramesOnWords(ArrayList<SoundFrame> soundFrames) {
+        ArrayList<Word> result = new ArrayList<Word>();
+        Word word = new Word();
+        boolean isSilence = true;
+        int counter = 0;
+
+        for (SoundFrame soundFrame : soundFrames) {
+
+            if (isSilence != soundFrame.isSilence()) {
+                if (soundFrame.isSilence()) {
+                    result.add(word);
+                    word = new Word();
+                    isSilence = true;
+                    counter = 1;
+                } else {
+                    word.setFramesBefore(counter);
+//                    counter = 0;
+                    isSilence = false;
+                    word.getSoundFrames().add(soundFrame);
+                }
+            } else {
+                if (!isSilence) {
+                    word.getSoundFrames().add(soundFrame);
+                } else {
+                    counter++;
+                }
+            }
+        }
+
         return result;
     }
 

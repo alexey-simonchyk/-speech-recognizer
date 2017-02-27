@@ -8,6 +8,25 @@ public class SoundFrame {
     private double[] normalizedFrameData = null;
     private int startPosition;
 
+    private boolean isSilence;
+    private double entropyValue;
+
+    public double getEntropyValue() {
+        return this.entropyValue;
+    }
+
+    public void setEntropyValue(double entropyValue) {
+        this.entropyValue = entropyValue;
+    }
+
+    public boolean isSilence() {
+        return this.isSilence;
+    }
+
+    public void setSilence(boolean isSilence) {
+        this.isSilence = isSilence;
+    }
+
     public void setStartPosition(int startPosition) {
         this.startPosition = startPosition;
     }

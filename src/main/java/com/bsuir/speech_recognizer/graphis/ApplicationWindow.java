@@ -62,27 +62,27 @@ public class ApplicationWindow extends Application {
         double temp = 2.2;
         temp = temp * SCALE + OFFSET;
         graphicsContext.setStroke(Color.RED);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET, temp);
+        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
 
-        temp = 2.3;
+        temp = 2.35;
         temp = temp * SCALE + OFFSET;
         graphicsContext.setStroke(Color.BLUE);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET, temp);
+        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
 
         temp = 2.4;
         temp = temp * SCALE + OFFSET;
         graphicsContext.setStroke(Color.BROWN);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET, temp);
+        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
 
         temp = 2.5;
         temp = temp * SCALE + OFFSET;
         graphicsContext.setStroke(Color.GREEN);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET, temp);
+        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
 
-        temp = 2.6;
+        temp = 2.7;
         temp = temp * SCALE + OFFSET;
         graphicsContext.setStroke(Color.PINK);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET, temp);
+        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
     }
 
     public static void draw(double value) {
@@ -91,7 +91,8 @@ public class ApplicationWindow extends Application {
     }
 
     private void draw() {
-        System.out.println(drawValues.size());
+//        System.out.println(drawValues.size());
+        int counter = 10;
         for (double value : drawValues) {
             double temp;
             temp = value * SCALE + OFFSET;
@@ -100,8 +101,17 @@ public class ApplicationWindow extends Application {
             } else {
                 graphicsContext.strokeLine(currentXPosition, temp, currentXPosition + LENGTHINESS, temp);
             }
+
             currentYPosition = temp;
             currentXPosition += LENGTHINESS;
+            counter += 5;
+            if (counter % 500 == 0) {
+                drawSecondLine(currentXPosition);
+            }
         }
+    }
+
+    private void drawSecondLine(double offset) {
+        graphicsContext.strokeLine(offset, SCREEN_HEIGHT, offset, SCREEN_HEIGHT - 250);
     }
 }

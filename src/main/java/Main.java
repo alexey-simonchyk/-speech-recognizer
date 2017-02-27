@@ -1,6 +1,8 @@
 import com.bsuir.speech_recognizer.graphis.ApplicationWindow;
 import com.bsuir.speech_recognizer.math.Entropy;
 import com.bsuir.speech_recognizer.math.Normalizer;
+import com.bsuir.speech_recognizer.sound.Word;
+import com.bsuir.speech_recognizer.sound.logic.Analyzer;
 import com.bsuir.speech_recognizer.sound.logic.AudioSplitter;
 import com.bsuir.speech_recognizer.sound.SoundFrame;
 import com.bsuir.speech_recognizer.sound.SoundRecorder;
@@ -23,12 +25,12 @@ public class Main{
 
         SoundRecorder recorder = new SoundRecorder(true);
 
-        /*recorder.startRecording();
+        recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();*/
+        recorder.stopRecording();
 
         AudioSplitter audioSplitter = new AudioSplitter();
         Speech speech = new Speech(recorder.getBytes());
@@ -57,7 +59,20 @@ public class Main{
                 ApplicationWindow.draw(entropyValue);
 
                 bufferedWriter.write(entropyValue + "\n");
+
+                boolean isSilence;
+                isSilence = entropy.isSilence(entropyValue);
+                soundFrame.setSilence(isSilence);
+                soundFrame.setEntropyValue(entropyValue);
+
             }
+
+            ArrayList<Word> words;
+            words = audioSplitter.splitFramesOnWords(soundFrames);
+            Analyzer analyzer = new Analyzer();
+            analyzer.analyzeWords(words);
+            System.out.println(words.size());
+
 
         } catch (IOException e) {
             e.printStackTrace();
