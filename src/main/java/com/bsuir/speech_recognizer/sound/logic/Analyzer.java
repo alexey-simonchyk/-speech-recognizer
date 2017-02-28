@@ -1,5 +1,6 @@
 package com.bsuir.speech_recognizer.sound.logic;
 
+import com.bsuir.speech_recognizer.sound.Speech;
 import com.bsuir.speech_recognizer.sound.Word;
 
 import java.util.ArrayList;
@@ -9,7 +10,8 @@ public class Analyzer {
     private final static int MIN_WORD_FRAMES = 32;
     private final static int MIN_FRAMES_BETWEEN_WORDS = MIN_WORD_FRAMES / 2;
 
-    public void analyzeWords(ArrayList<Word> words) {
+    public void analyzeWords(Speech speech) {
+        ArrayList<Word> words = speech.getWords();
         int i = 1;
         while (i < words.size()) {
             Word word = words.get(i);

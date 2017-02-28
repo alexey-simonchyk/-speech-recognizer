@@ -7,6 +7,7 @@ public class SoundFrame {
     private byte[] frameData = null;
     private double[] normalizedFrameData = null;
     private int startPosition;
+    private int endPosition;
 
     private boolean isSilence;
     private double entropyValue;
@@ -53,5 +54,13 @@ public class SoundFrame {
         this.normalizedFrameData = normalizedFrameData;
     }
 
-    public int getDataLength() { return frameData.length; }
+    public int getDataLength() { return endPosition - startPosition; }
+
+    public int getEndPosition() {
+        return endPosition;
+    }
+
+    public void setEndPosition(int endPosition) {
+        this.endPosition = endPosition;
+    }
 }

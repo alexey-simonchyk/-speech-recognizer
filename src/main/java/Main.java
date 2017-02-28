@@ -3,7 +3,7 @@ import com.bsuir.speech_recognizer.math.Entropy;
 import com.bsuir.speech_recognizer.math.Normalizer;
 import com.bsuir.speech_recognizer.sound.Word;
 import com.bsuir.speech_recognizer.sound.logic.Analyzer;
-import com.bsuir.speech_recognizer.sound.logic.AudioSplitter;
+import com.bsuir.speech_recognizer.sound.logic.Splitter;
 import com.bsuir.speech_recognizer.sound.SoundFrame;
 import com.bsuir.speech_recognizer.sound.SoundRecorder;
 import com.bsuir.speech_recognizer.sound.Speech;
@@ -25,25 +25,20 @@ public class Main{
 
         SoundRecorder recorder = new SoundRecorder(true);
 
-        recorder.startRecording();
+        /*recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();
+        recorder.stopRecording();*/
 
-        AudioSplitter audioSplitter = new AudioSplitter();
+        Splitter splitter = new Splitter();
         Speech speech = new Speech(recorder.getBytes());
-
-        ArrayList<SoundFrame> soundFrames;
-        soundFrames = audioSplitter.splitSoundOnFrames(speech);
-        speech.setSoundFrames(soundFrames);
 
         Entropy entropy = new Entropy();
         Normalizer normalizer = new Normalizer();
-
-        ApplicationWindow.SIZE = soundFrames.size();
-        ApplicationWindow applicationWindow = new ApplicationWindow();
+        splitter.splitSoundOnFrames(speech);
+        ArrayList<SoundFrame> soundFrames = speech.getSoundFrames();
 
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("results.txt"))) {
 
@@ -51,7 +46,9 @@ public class Main{
 
             for (SoundFrame soundFrame : soundFrames) {
 
-                double[] normalizedData = normalizer.normalize(soundFrame.getFrameData());
+                double[] normalizedData = normalizer.normalize(soundFrame.getFrameData(),
+                                                                soundFrame.getStartPosition(),
+                                                                soundFrame.getEndPosition());
                 soundFrame.setNormalizedFrameData(normalizedData);
 
 
@@ -67,16 +64,18 @@ public class Main{
 
             }
 
-            ArrayList<Word> words;
-            words = audioSplitter.splitFramesOnWords(soundFrames);
+            splitter.splitIntoWords(speech);
             Analyzer analyzer = new Analyzer();
-            analyzer.analyzeWords(words);
-            System.out.println(words.size());
+            analyzer.analyzeWords(speech);
+            System.out.println(speech.getWords().size());
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        ApplicationWindow.SIZE = soundFrames.size();
+        ApplicationWindow applicationWindow = new ApplicationWindow();
         applicationWindow.initialize(args);
 
     }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Speech {
     private byte[] data;
     private ArrayList<SoundFrame> soundFrames = null;
+    private ArrayList<Word> words = null;
 
     public Speech(byte[] data) {
         this.data = data;
@@ -22,5 +23,13 @@ public class Speech {
 
     public byte[] getData() {
         return data;
+    }
+
+    public ArrayList<Word> getWords() {
+        return words;
+    }
+
+    public void setWords(ArrayList<Word> words) {
+        this.words = words;
     }
 }
