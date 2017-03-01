@@ -1,8 +1,12 @@
 package com.bsuir.speech_recognizer.sound;
 
+import javafx.collections.ArrayChangeListener;
+
 import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class SoundRecorder {
 
@@ -12,6 +16,8 @@ public class SoundRecorder {
     private final static int FRAME_SIZE = 2; // frame size in bytes
     private final static float FRAME_RATE = 44100; // number frames per second
     private final static String FILE_NAME = "temp.wav";
+
+    public final static int BYTES_IN_ONE_SECOND = (int)(FRAME_RATE * FRAME_SIZE);
 
     private File lastRecord = null;
     private AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;

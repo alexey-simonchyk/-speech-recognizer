@@ -3,26 +3,34 @@ package com.bsuir.speech_recognizer.sound;
 import java.util.ArrayList;
 
 public class Word {
-    private ArrayList<SoundFrame> soundFrames = new ArrayList<SoundFrame>();
-    private int framesBefore;
+    private int startPosition;
+    private int endPosition;
 
-    public ArrayList<SoundFrame> getSoundFrames() {
-        return soundFrames;
+    public int getStartPosition() {
+        return startPosition;
     }
 
-    public void setSoundFrames(ArrayList<SoundFrame> soundFrames) {
-        this.soundFrames = soundFrames;
+    public void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
     }
 
-    public int getFramesBefore() {
-        return framesBefore;
+    public int getEndPosition() {
+        return endPosition;
     }
 
-    public void setFramesBefore(int framesBefore) {
-        this.framesBefore = framesBefore;
+    public void setEndPosition(int endPosition) {
+        this.endPosition = endPosition;
     }
 
     public void combine(Word word) {
-        this.soundFrames.addAll(word.soundFrames);
+        endPosition = word.endPosition;
+    }
+
+    public int getDistanceToWord(Word word) {
+        return word.startPosition - endPosition;
+    }
+
+    public int getWordLength() {
+        return endPosition - startPosition;
     }
 }

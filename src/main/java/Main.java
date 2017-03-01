@@ -25,12 +25,12 @@ public class Main{
 
         SoundRecorder recorder = new SoundRecorder(true);
 
-        /*recorder.startRecording();
+        recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();*/
+        recorder.stopRecording();
 
         Splitter splitter = new Splitter();
         Speech speech = new Speech(recorder.getBytes());
@@ -68,7 +68,6 @@ public class Main{
             Analyzer analyzer = new Analyzer();
             analyzer.analyzeWords(speech);
             System.out.println(speech.getWords().size());
-
 
         } catch (IOException e) {
             e.printStackTrace();
