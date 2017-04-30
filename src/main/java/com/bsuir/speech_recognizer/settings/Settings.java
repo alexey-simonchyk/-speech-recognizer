@@ -1,7 +1,8 @@
 package com.bsuir.speech_recognizer.settings;
 
 public class Settings {
-    public static boolean USE_FFT = false;
+    public static boolean USE_FFT = true;
+    public static boolean USE_WINDOW_FUNCTION = false;
 
     // 882 - 10 ms
     // 1024 ~ 11.6 ms

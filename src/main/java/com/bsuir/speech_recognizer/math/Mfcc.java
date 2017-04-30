@@ -12,10 +12,10 @@ public class Mfcc {
         int sampleLength = soundFrame.getNormalizedFrameData().length;
         double[] fourierRaw;
         if (Settings.USE_FFT) {
-            sampleLength = (int)Entropy.log(sampleLength, 2);
-            fourierRaw = fourierTransformFast(soundFrame, sampleLength, true);
+            sampleLength = (int)Math.pow(2, (int)Entropy.log(sampleLength, 2));
+            fourierRaw = fourierTransformFast(soundFrame, sampleLength, USE_WINDOW_FUNCTION);
         } else {
-            fourierRaw = fourierTransform(soundFrame, sampleLength, true);
+            fourierRaw = fourierTransform(soundFrame, sampleLength, USE_WINDOW_FUNCTION);
         }
 
 
@@ -144,12 +144,63 @@ public class Mfcc {
     }
 
     private static double[] fourierTransformFast(SoundFrame soundFrame, int length, boolean useWindow) {
+        double[] data = soundFrame.getNormalizedFrameData();
         double[] fourierRaw = new double[length];
         Complex[] fourierRawTemp = new Complex[length];
 
+        for (int i = 0; i < length; i++) {
 
+            fourierRawTemp[i] = new Complex(data[i]);
 
-        return null;
+            if (useWindow) {
+                fourierRawTemp[i].multiply(0.54 - 0.46 * Math.cos(2 * Math.PI * i / (length - 1)));
+            }
+        }
+
+        fourierTransformFastRecursion(fourierRawTemp);
+
+        for (int i = 0; i < length; i++) {
+            fourierRaw[i] = fourierRawTemp[i].getNormal();
+        }
+
+        return fourierRaw;
+    }
+
+    private static void fourierTransformFastRecursion(Complex[] data) {
+        int length = data.length;
+
+        if (length <= 1) {
+            return;
+        }
+
+        int temp = data.length / 2;
+        Complex[] even = new Complex[temp];
+        Complex[] odd = new Complex[temp + data.length % 2];
+
+        int evenCounter = 0;
+        int oddCounter = 0;
+
+        for (int i = 0; i < length; i++) {
+            if (i % 2 == 0) {
+                odd[oddCounter++] = data[i];
+            } else {
+                even[evenCounter++] = data[i];
+            }
+        }
+
+        fourierTransformFastRecursion(even);
+        fourierTransformFastRecursion(odd);
+
+        for (int i = 0; i < length / 2; i++) {
+            Complex tempComplex = new Complex();
+            tempComplex.real = Math.cos(-2 * Math.PI * i / length);
+            tempComplex.img = Math.sin(-2 * Math.PI * i / length);
+            tempComplex.multiply(odd[i]);
+
+            data[i] = even[i].plus(tempComplex);
+            data[i + length / 2] = even[i].minus(tempComplex);
+
+        }
     }
 
 }
