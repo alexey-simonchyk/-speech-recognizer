@@ -21,22 +21,53 @@ public class Mfcc {
         return dctRaw;
     }
 
-    public static double[] calculatePower(double[] fourierRaw, int length, double[][] melFilters) {
-        return null;
+
+
+    private static double[][] getMelFilters(int filterLength) {
+        double[] fb = new double[MFCC_SIZE + 2];
+        fb[0] = convertToMel(MFCC_FREQ_MIN);
+        fb[MFCC_SIZE + 1] = convertToMel(MFCC_FREQ_MAX);
+
+        for (int i = 0; i < MFCC_SIZE + 1; i++) {
+            fb[i] = fb[0] + i * (fb[MFCC_SIZE + 1] - fb[0]) / (MFCC_SIZE + 1);
+        }
+
+        for (int i = 0; i < MFCC_SIZE + 1; i++) {
+            fb[i] = convertFromMel(fb[i]);
+
+            fb[i] = (int) ((filterLength + 1) * fb[i] / MFCC_FREQ);
+        }
+
+        double[][] filterBanks = new double[MFCC_SIZE][filterLength];
+
+        for (int i = 1; i < MFCC_SIZE + 1; i++) {
+            for (int k = 0; k < MFCC_SIZE; k++) {
+
+                if (fb[i - 1] <= k && k <= fb[i]) {
+                    filterBanks[i - 1][k] = (k - fb[i - 1]) / (fb[i] - fb[i - 1]);
+
+                } else if (fb[i] < k && k <= fb[i + 1]) {
+                    filterBanks[i - 1][k] = (fb[i + 1] - k) / (fb[i + 1] - fb[i]);
+
+                } else {
+                    filterBanks[i - 1][k] = 0;
+                }
+            }
+
+        }
+
+        return filterBanks;
     }
 
-    public static double[] dctTransform(double[] logPower) {
-        return null;
-    }
 
-    public static double[] fourierTransform(SoundFrame soundFrame, int length, boolean useWindow) {
+
+    private static double[] fourierTransform(SoundFrame soundFrame, int length, boolean useWindow) {
         double[] fourierRaw = new double[length];
 
         double[] data = soundFrame.getNormalizedFrameData();
 
         Complex[] fourierTempRaw = new Complex[length];
 
-        System.out.println("The coefficients are: ");
         for(int i = 0; i < length; i++)
         {
             fourierTempRaw[i] = new Complex();
@@ -61,22 +92,35 @@ public class Mfcc {
         return fourierRaw;
     }
 
-
-
     public static double filter(SoundFrame soundFrame) {
         return 0;
     }
 
-    public static double[][] getMelFilters(int filterLength) {
+    private static double[] calculatePower(double[] fourierRaw, int length, double[][] melFilters) {
         return null;
     }
 
+    private static double[] dctTransform(double[] logPower) {
+        return null;
+    }
 
-    public static double[] fourierTransformFast(SoundFrame soundFrame, int length, boolean useWindow) {
+    private static double[] fourierTransformFast(SoundFrame soundFrame, int length, boolean useWindow) {
         double[] fourierRaw = new double[length];
         double[] fourierRawTemp = new double[length];
 
         return null;
+    }
+
+    private static double convertToMel(double frequency) {
+        double melCoefficient = Math.log(1 + frequency / 700);
+        melCoefficient *= 1125;
+        return melCoefficient;
+    }
+
+    private static double convertFromMel(double melCoefficient) {
+        double frequency = Math.exp(melCoefficient / 1125 ) - 1;
+        frequency *= 700;
+        return frequency;
     }
 
 }
