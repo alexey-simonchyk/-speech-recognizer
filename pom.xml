@@ -21,5 +21,27 @@
         </plugins>
     </build>
 
+    <!--<repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases><enabled>false</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>edu.cmu.sphinx</groupId>
+            <artifactId>sphinx4-core</artifactId>
+            <version>5prealpha-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.cmu.sphinx</groupId>
+            <artifactId>sphinx4-data</artifactId>
+            <version>5prealpha-SNAPSHOT</version>
+        </dependency>
+    </dependencies>-->
+
 
 </project>

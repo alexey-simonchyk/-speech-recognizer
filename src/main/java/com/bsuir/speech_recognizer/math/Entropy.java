@@ -53,7 +53,7 @@ public class Entropy {
         return result;
     }
 
-    private double log(double value, int base) {
+    public static double log(double value, int base) {
         double result = 0;
         result = Math.log(value) / Math.log(base);
         return result;

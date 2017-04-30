@@ -67,6 +67,9 @@ public class Main{
             splitter.splitIntoWords(speech);
             Analyzer analyzer = new Analyzer();
             analyzer.analyzeWords(speech);
+
+
+
             System.out.println(speech.getWords().size());
 
         } catch (IOException e) {
