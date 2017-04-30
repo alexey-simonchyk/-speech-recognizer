@@ -6,6 +6,34 @@ public class Word {
     private int startPosition;
     private int endPosition;
 
+    private int startFrame;
+    private int endFrame;
+    private ArrayList<SoundFrame> frames;
+
+    public int getStartFrame() {
+        return startFrame;
+    }
+
+    public void setStartFrame(int startFrame) {
+        this.startFrame = startFrame;
+    }
+
+    public int getEndFrame() {
+        return endFrame;
+    }
+
+    public void setEndFrame(int endFrame) {
+        this.endFrame = endFrame;
+    }
+
+    public ArrayList<SoundFrame> getFrames() {
+        return frames;
+    }
+
+    public void setFrames(ArrayList<SoundFrame> frames) {
+        this.frames = frames;
+    }
+
     public int getStartPosition() {
         return startPosition;
     }
@@ -24,6 +52,7 @@ public class Word {
 
     public void combine(Word word) {
         endPosition = word.endPosition;
+        endFrame = word.endFrame;
     }
 
     public int getDistanceToWord(Word word) {

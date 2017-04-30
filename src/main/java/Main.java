@@ -1,5 +1,6 @@
 import com.bsuir.speech_recognizer.graphis.ApplicationWindow;
 import com.bsuir.speech_recognizer.math.Entropy;
+import com.bsuir.speech_recognizer.math.Mfcc;
 import com.bsuir.speech_recognizer.math.Normalizer;
 import com.bsuir.speech_recognizer.sound.Word;
 import com.bsuir.speech_recognizer.sound.logic.Analyzer;
@@ -25,12 +26,12 @@ public class Main{
 
         SoundRecorder recorder = new SoundRecorder(true);
 
-        recorder.startRecording();
+        /*recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();
+        recorder.stopRecording();*/
 
         Splitter splitter = new Splitter();
         Speech speech = new Speech(recorder.getBytes());
@@ -65,12 +66,31 @@ public class Main{
             }
 
             splitter.splitIntoWords(speech);
+
             Analyzer analyzer = new Analyzer();
             analyzer.analyzeWords(speech);
 
-
-
             System.out.println(speech.getWords().size());
+
+            ArrayList<Word> words = speech.getWords();
+            for (Word word : words) {
+                System.out.println("\nword");
+                System.out.println("Start frame = " + word.getStartFrame() + " position " + word.getStartPosition());
+                System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
+            }
+
+            // getting mel coefficients
+            /*ArrayList<Word> words = speech.getWords();
+            for (Word word : words) {
+                for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
+
+                    System.out.println(i);
+
+                    SoundFrame soundFrame = soundFrames.get(i);
+                    soundFrame.setMfcc(Mfcc.transform(soundFrame));
+                }
+            }*/
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,4 +101,5 @@ public class Main{
         applicationWindow.initialize(args);
 
     }
+
 }

@@ -6,11 +6,21 @@ public class SoundFrame {
 
     private byte[] frameData = null;
     private double[] normalizedFrameData = null;
+
+    private double[] mfcc;
     private int startPosition;
     private int endPosition;
 
     private boolean isSilence;
     private double entropyValue;
+
+    public double[] getMfcc() {
+        return mfcc;
+    }
+
+    public void setMfcc(double[] mfcc) {
+        this.mfcc = mfcc;
+    }
 
     public double getEntropyValue() {
         return this.entropyValue;

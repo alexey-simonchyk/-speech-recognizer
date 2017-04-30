@@ -37,13 +37,13 @@ public class Splitter {
         ArrayList<SoundFrame> soundFrames = speech.getSoundFrames();
         ArrayList<Word> words = new ArrayList<Word>();
 
+        int counter = 0;
 
         if (soundFrames != null) {
             Word word = null;
             boolean isSilence = true;
 
             for (SoundFrame soundFrame : soundFrames) {
-
                 if (isSilence != soundFrame.isSilence()) {
 
                     if (isSilence) {
@@ -51,16 +51,25 @@ public class Splitter {
                             words.add(word);
                         }
                         word = new Word();
+                        word.setFrames(soundFrames);
+                        word.setStartFrame(counter);
                         word.setStartPosition(soundFrame.getStartPosition());
                     }
                     isSilence = soundFrame.isSilence();
                 }
 
                 if (!isSilence) {
+                    word.setEndFrame(counter);
                     word.setEndPosition(soundFrame.getEndPosition());
                 }
+                counter++;
+            }
+
+            if (word != null) {
+                words.add(word);
             }
         }
+
 
         speech.setWords(words);
     }

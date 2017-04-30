@@ -21,6 +21,37 @@ public class Mfcc {
         return dctRaw;
     }
 
+    private static double[] dctTransform(double[] logPower) {
+        double[] dctTransform = new double[logPower.length];
+
+        for (int i = 0; i < logPower.length; i++) {
+            dctTransform[i] = 0;
+
+            for (int k = 0; k < logPower.length; k++) {
+                dctTransform[i] += logPower[k] * Math.cos(Math.PI * i * (k + 0.5) / logPower.length);
+            }
+        }
+
+        return dctTransform;
+    }
+
+
+    private static double[] calculatePower(double[] fourierRaw, int length, double[][] melFilters) {
+        double[] logPower = new double[MFCC_SIZE];
+
+        for (int i = 0; i < MFCC_SIZE; i++) {
+            logPower[i] = 0;
+
+            for (int k = 0; k < length; k++) {
+                logPower[i] = melFilters[i][k] * Math.pow(fourierRaw[k], 2);
+            }
+
+            // TODO: 4/30/17 May be need remove in future
+            logPower[i] = Math.log(logPower[i]);
+        }
+
+        return logPower;
+    }
 
 
     private static double[][] getMelFilters(int filterLength) {
@@ -92,25 +123,6 @@ public class Mfcc {
         return fourierRaw;
     }
 
-    public static double filter(SoundFrame soundFrame) {
-        return 0;
-    }
-
-    private static double[] calculatePower(double[] fourierRaw, int length, double[][] melFilters) {
-        return null;
-    }
-
-    private static double[] dctTransform(double[] logPower) {
-        return null;
-    }
-
-    private static double[] fourierTransformFast(SoundFrame soundFrame, int length, boolean useWindow) {
-        double[] fourierRaw = new double[length];
-        double[] fourierRawTemp = new double[length];
-
-        return null;
-    }
-
     private static double convertToMel(double frequency) {
         double melCoefficient = Math.log(1 + frequency / 700);
         melCoefficient *= 1125;
@@ -121,6 +133,13 @@ public class Mfcc {
         double frequency = Math.exp(melCoefficient / 1125 ) - 1;
         frequency *= 700;
         return frequency;
+    }
+
+    private static double[] fourierTransformFast(SoundFrame soundFrame, int length, boolean useWindow) {
+        double[] fourierRaw = new double[length];
+        double[] fourierRawTemp = new double[length];
+
+        return null;
     }
 
 }
