@@ -1,18 +1,24 @@
 package com.bsuir.speech_recognizer.math;
 
+import com.bsuir.speech_recognizer.settings.Settings;
 import com.bsuir.speech_recognizer.sound.SoundFrame;
+import static com.bsuir.speech_recognizer.settings.Settings.*;
 
 public class Mfcc {
 
-    private static final int MFCC_FREQ_MIN = 300;
-    private static final int MFCC_FREQ_MAX = 4000;
-    private static final int MFCC_SIZE = 12;
-    private static final int MFCC_FREQ = 44100;
+
 
     public static double[] transform(SoundFrame soundFrame) {
         int sampleLength = soundFrame.getNormalizedFrameData().length;
+        double[] fourierRaw;
+        if (Settings.USE_FFT) {
+            sampleLength = (int)Entropy.log(sampleLength, 2);
+            fourierRaw = fourierTransformFast(soundFrame, sampleLength, true);
+        } else {
+            fourierRaw = fourierTransform(soundFrame, sampleLength, true);
+        }
 
-        double[] fourierRaw = fourierTransform(soundFrame, sampleLength, true);
+
 
         double[][] melFilters = getMelFilters(sampleLength);
         double[] logPower = calculatePower(fourierRaw, sampleLength, melFilters);
@@ -99,6 +105,10 @@ public class Mfcc {
 
         Complex[] fourierTempRaw = new Complex[length];
 
+        double window;
+        window = 0.54 - 0.46 * Math.cos(2 * Math.PI * length / (length - 1));
+
+
         for(int i = 0; i < length; i++)
         {
             fourierTempRaw[i] = new Complex();
@@ -108,12 +118,10 @@ public class Mfcc {
                 fourierTempRaw[i].real += data[j] * Math.cos(temp);
                 fourierTempRaw[i].img += data[j] * Math.sin(temp);
 
-                double window = 1;
                 if (useWindow) {
-                    window = 0.54 - 0.46 * Math.cos(2 * Math.PI * length / (length - 1));
+                    fourierTempRaw[i].multiply(window);
                 }
 
-                fourierTempRaw[i].multiply(window);
             }
 
             fourierRaw[i] = fourierTempRaw[i].getNormal();
@@ -137,7 +145,9 @@ public class Mfcc {
 
     private static double[] fourierTransformFast(SoundFrame soundFrame, int length, boolean useWindow) {
         double[] fourierRaw = new double[length];
-        double[] fourierRawTemp = new double[length];
+        Complex[] fourierRawTemp = new Complex[length];
+
+
 
         return null;
     }

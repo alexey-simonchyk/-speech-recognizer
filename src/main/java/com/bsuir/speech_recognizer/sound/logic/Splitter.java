@@ -5,6 +5,7 @@ import com.bsuir.speech_recognizer.sound.Speech;
 import com.bsuir.speech_recognizer.sound.Word;
 
 import java.util.ArrayList;
+import static com.bsuir.speech_recognizer.settings.Settings.*;
 
 public class Splitter {
 
@@ -16,7 +17,7 @@ public class Splitter {
 
         while (check) {
             SoundFrame soundFrame = new SoundFrame(data);
-            int endPosition = currentPosition + SoundFrame.FRAME_SIZE;
+            int endPosition = currentPosition + FRAME_SIZE;
 
             if (endPosition > data.length) {
                 endPosition = data.length;
@@ -26,7 +27,7 @@ public class Splitter {
             soundFrame.setStartPosition(currentPosition);
             soundFrame.setEndPosition(endPosition);
 
-            currentPosition += SoundFrame.FRAME_SHIFT;
+            currentPosition += FRAME_SHIFT;
             result.add(soundFrame);
         }
 

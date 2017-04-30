@@ -1,23 +1,19 @@
 package com.bsuir.speech_recognizer.sound;
 
+import com.bsuir.speech_recognizer.settings.Settings;
 import javafx.collections.ArrayChangeListener;
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+
+import static com.bsuir.speech_recognizer.settings.Settings.*;
 
 public class SoundRecorder {
 
-    private final static int NUMBER_CHANNELS = 1;
-    private final static float SAMPLE_RATE = 44100;
-    private final static int SAMPLE_SIZE_IN_BITS = 16;
-    private final static int FRAME_SIZE = 2; // frame size in bytes
-    private final static float FRAME_RATE = 44100; // number frames per second
-    private final static String FILE_NAME = "temp.wav";
 
-    public final static int BYTES_IN_ONE_SECOND = (int)(FRAME_RATE * FRAME_SIZE);
+    private final static String FILE_NAME = "temp.wav";
 
     private File lastRecord = null;
     private AudioFileFormat.Type fileType = AudioFileFormat.Type.WAVE;
@@ -25,7 +21,7 @@ public class SoundRecorder {
     private TargetDataLine mike;
 
     public SoundRecorder(boolean isBigEndian) {
-        format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, SAMPLE_RATE, SAMPLE_SIZE_IN_BITS, NUMBER_CHANNELS, FRAME_SIZE, FRAME_RATE, isBigEndian);
+        format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, SAMPLE_RATE, SAMPLE_SIZE_IN_BITS, NUMBER_CHANNELS, BYTES_IN_FRAME, FRAME_RATE, isBigEndian);
     }
 
     public void startRecording() {

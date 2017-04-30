@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Main{
+public class Main {
+
+    public static boolean IS_FFT = true;
 
     public static void main(String ...args) {
         testMethod(args);
@@ -80,7 +82,6 @@ public class Main{
             }
 
             // getting mel coefficients
-            /*ArrayList<Word> words = speech.getWords();
             for (Word word : words) {
                 for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
 
@@ -89,7 +90,7 @@ public class Main{
                     SoundFrame soundFrame = soundFrames.get(i);
                     soundFrame.setMfcc(Mfcc.transform(soundFrame));
                 }
-            }*/
+            }
 
 
         } catch (IOException e) {
