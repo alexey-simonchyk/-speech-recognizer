@@ -11,7 +11,7 @@ public class Mfcc {
         int sampleLength = soundFrame.getNormalizedFrameData().length;
         double[] fourierRaw;
         if (Settings.USE_FFT) {
-            sampleLength = (int)Math.pow(2, (int)Entropy.log(sampleLength, 2));
+            sampleLength = (int)Math.pow(2, (int)MathCommon.log(sampleLength, 2));
             fourierRaw = fourierTransformFast(soundFrame.getNormalizedFrameData(), sampleLength, USE_WINDOW_FUNCTION);
         } else {
             fourierRaw = fourierTransform(soundFrame.getNormalizedFrameData(), sampleLength, USE_WINDOW_FUNCTION);
@@ -235,7 +235,7 @@ public class Mfcc {
 
         double[] fourierRaw;
         if (Settings.USE_FFT) {
-            sampleLength = (int)Math.pow(2, (int)Entropy.log(sampleLength, 2));
+            sampleLength = (int)Math.pow(2, (int)MathCommon.log(sampleLength, 2));
             fourierRaw = fourierTransformFast(normalizedData, sampleLength, USE_WINDOW_FUNCTION);
         } else {
             fourierRaw = fourierTransform(normalizedData, sampleLength, USE_WINDOW_FUNCTION);

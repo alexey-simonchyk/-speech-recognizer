@@ -44,18 +44,12 @@ public class Entropy {
 
         for (double temp : probabilities) {
             if (temp > 0) {
-                result += temp * log(temp, 2);
+                result += temp * MathCommon.log(temp, 2);
             }
         }
 
         result = -result;
 
-        return result;
-    }
-
-    public static double log(double value, int base) {
-        double result = 0;
-        result = Math.log(value) / Math.log(base);
         return result;
     }
 
