@@ -1,8 +1,6 @@
 package com.bsuir.speech_recognizer.sound;
 
 public class SoundFrame {
-    public static int FRAME_SIZE = 882;
-    public static int FRAME_SHIFT = 441;
 
     private byte[] frameData = null;
     private double[] normalizedFrameData = null;
