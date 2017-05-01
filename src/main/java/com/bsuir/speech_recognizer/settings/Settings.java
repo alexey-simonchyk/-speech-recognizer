@@ -2,7 +2,7 @@ package com.bsuir.speech_recognizer.settings;
 
 public class Settings {
     public static boolean USE_FFT = true;
-    public static boolean USE_WINDOW_FUNCTION = false;
+    public static boolean USE_WINDOW_FUNCTION = true;
 
     // 882 - 10 ms
     // 1024 ~ 11.6 ms
@@ -26,8 +26,9 @@ public class Settings {
 
     public final static int BYTES_IN_ONE_SECOND = (int)(FRAME_RATE * BYTES_IN_FRAME);
 
-    public static final int MFCC_FREQ_MIN = 300;
-    public static final int MFCC_FREQ_MAX = 4000;
-    public static final int MFCC_SIZE = 12;
-    public static final int MFCC_FREQ = 44100;
+    public static final double MFCC_FREQ_MIN = 300;
+    public static final double MFCC_FREQ_MAX = 4000;
+    public static final double MFCC_SIZE = 12;
+    public static final double MFCC_FREQ = 44100;
+
 }

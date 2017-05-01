@@ -13,11 +13,10 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
-
-    public static boolean IS_FFT = true;
 
     public static void main(String ...args) {
         testMethod(args);
@@ -28,12 +27,12 @@ public class Main {
 
         SoundRecorder recorder = new SoundRecorder(true);
 
-        /*recorder.startRecording();
+        recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();*/
+        recorder.stopRecording();
 
         Splitter splitter = new Splitter();
         Speech speech = new Speech(recorder.getBytes());
@@ -81,26 +80,52 @@ public class Main {
                 System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
             }
 
-            // getting mel coefficients
-            for (Word word : words) {
-                for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
-
-                    System.out.println(i);
-
-                    SoundFrame soundFrame = soundFrames.get(i);
-                    soundFrame.setMfcc(Mfcc.transform(soundFrame));
-                }
-            }
+            getMelByFrames(words, soundFrames);
+//            getMelByWord(words);
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        ApplicationWindow.SIZE = soundFrames.size();
+//        printHelpData(soundFrames.size(), args);
+
+    }
+
+    private static void printHelpData(int soundFramesCount, String ...args) {
+        ApplicationWindow.SIZE = soundFramesCount;
         ApplicationWindow applicationWindow = new ApplicationWindow();
         applicationWindow.initialize(args);
+    }
 
+    private static void getMelByWord(ArrayList<Word> words) {
+        for (Word word : words) {
+            System.out.println(Arrays.toString(Mfcc.transform(word)));
+        }
+    }
+
+    private static void getMelByFrames(ArrayList<Word> words, ArrayList<SoundFrame> soundFrames) {
+        double[] temp = new double[12];
+        for (int i = 0; i < 12; i++) {
+            temp[i] = 0.0;
+        }
+        int counter = 0;
+        for (Word word : words) {
+            for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
+                counter++;
+                SoundFrame soundFrame = soundFrames.get(i);
+                soundFrame.setMfcc(Mfcc.transform(soundFrame));
+                double[] mfcc = soundFrame.getMfcc();
+                for (int k = 0; k < 12; k++) {
+                    temp[k] += mfcc[k];
+                }
+            }
+
+            for (int k = 0; k < 12; k++) {
+                temp[k] /= counter;
+            }
+            System.out.println("Res = " + Arrays.toString(temp));
+        }
     }
 
 }
