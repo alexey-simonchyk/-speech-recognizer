@@ -2,6 +2,7 @@ import com.bsuir.speech_recognizer.graphis.ApplicationWindow;
 import com.bsuir.speech_recognizer.math.Entropy;
 import com.bsuir.speech_recognizer.math.Mfcc;
 import com.bsuir.speech_recognizer.math.Normalizer;
+import com.bsuir.speech_recognizer.mfcc.MfccValue;
 import com.bsuir.speech_recognizer.sound.Word;
 import com.bsuir.speech_recognizer.sound.logic.Analyzer;
 import com.bsuir.speech_recognizer.sound.logic.Splitter;
@@ -114,10 +115,10 @@ public class Main {
             for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
                 counter++;
                 SoundFrame soundFrame = soundFrames.get(i);
-                soundFrame.setMfcc(Mfcc.transform(soundFrame));
-                double[] mfcc = soundFrame.getMfcc();
+                soundFrame.setMfccValue(Mfcc.transform(soundFrame));
+                MfccValue mfccValue = soundFrame.getMfccValue();
                 for (int k = 0; k < 12; k++) {
-                    temp[k] += mfcc[k];
+                    temp[k] += mfccValue.getValue()[k];
                 }
             }
 

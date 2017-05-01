@@ -1,24 +1,19 @@
 package com.bsuir.speech_recognizer.sound;
 
+import com.bsuir.speech_recognizer.mfcc.MfccValue;
+
 public class SoundFrame {
 
     private byte[] frameData = null;
     private double[] normalizedFrameData = null;
 
-    private double[] mfcc;
+    private MfccValue mfccValue;
     private int startPosition;
     private int endPosition;
 
     private boolean isSilence;
     private double entropyValue;
 
-    public double[] getMfcc() {
-        return mfcc;
-    }
-
-    public void setMfcc(double[] mfcc) {
-        this.mfcc = mfcc;
-    }
 
     public double getEntropyValue() {
         return this.entropyValue;
@@ -70,5 +65,13 @@ public class SoundFrame {
 
     public void setEndPosition(int endPosition) {
         this.endPosition = endPosition;
+    }
+
+    public MfccValue getMfccValue() {
+        return mfccValue;
+    }
+
+    public void setMfccValue(MfccValue mfccValue) {
+        this.mfccValue = mfccValue;
     }
 }

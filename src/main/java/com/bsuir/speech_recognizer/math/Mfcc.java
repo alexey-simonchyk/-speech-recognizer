@@ -1,5 +1,6 @@
 package com.bsuir.speech_recognizer.math;
 
+import com.bsuir.speech_recognizer.mfcc.MfccValue;
 import com.bsuir.speech_recognizer.settings.Settings;
 import com.bsuir.speech_recognizer.sound.SoundFrame;
 import com.bsuir.speech_recognizer.sound.Word;
@@ -7,7 +8,7 @@ import com.bsuir.speech_recognizer.sound.Word;
 import static com.bsuir.speech_recognizer.settings.Settings.*;
 
 public class Mfcc {
-    public static double[] transform(SoundFrame soundFrame) {
+    public static MfccValue transform(SoundFrame soundFrame) {
         int sampleLength = soundFrame.getNormalizedFrameData().length;
         double[] fourierRaw;
         if (Settings.USE_FFT) {
@@ -23,7 +24,7 @@ public class Mfcc {
         double[] logPower = calculatePower(fourierRaw, sampleLength, melFilters);
         double[] dctRaw = dctTransform(logPower);
 
-        return dctRaw;
+        return new MfccValue(dctRaw);
     }
 
     private static double[] dctTransform(double[] logPower) {
