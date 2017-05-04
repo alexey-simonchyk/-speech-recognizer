@@ -16,7 +16,7 @@ public class ApplicationWindow extends Application {
 
     private static final int LENGTHINESS = 5;
     private static final int SCALE = -200;
-    private static final int OFFSET = 880;
+    private static final int OFFSET = 780;
     private static final int GRAPHIC_OFFSET = 20;
 
     private static final int SCREEN_WIDTH = 640;
@@ -64,7 +64,7 @@ public class ApplicationWindow extends Application {
         graphicsContext.setStroke(Color.RED);
         graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
 
-        temp = 2.35;
+        temp = 1.7;
         temp = temp * SCALE + OFFSET;
         graphicsContext.setStroke(Color.BLUE);
         graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);

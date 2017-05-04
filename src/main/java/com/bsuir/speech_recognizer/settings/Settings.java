@@ -11,7 +11,7 @@ public class Settings {
 
     static {
         if (USE_FFT) {
-            FRAME_SIZE = 1024;
+            FRAME_SIZE = 2048; // 2048
         } else {
             FRAME_SIZE = 882;
         }
@@ -26,9 +26,9 @@ public class Settings {
 
     public final static int BYTES_IN_ONE_SECOND = (int)(FRAME_RATE * BYTES_IN_FRAME);
 
-    public static final double MFCC_FREQ_MIN = 300;
-    public static final double MFCC_FREQ_MAX = 4000;
-    public static final double MFCC_SIZE = 12;
-    public static final double MFCC_FREQ = 44100;
+    public static final int MFCC_FREQ_MIN = 300;
+    public static final int MFCC_FREQ_MAX = 20000;
+    public static final int MFCC_SIZE = 20;
+    public static final int MFCC_FREQ = 44100;
 
 }

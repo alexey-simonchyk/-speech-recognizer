@@ -1,8 +1,10 @@
 import com.bsuir.speech_recognizer.graphis.ApplicationWindow;
+import com.bsuir.speech_recognizer.hmm.SoundMap;
 import com.bsuir.speech_recognizer.math.Entropy;
 import com.bsuir.speech_recognizer.math.Mfcc;
 import com.bsuir.speech_recognizer.math.Normalizer;
 import com.bsuir.speech_recognizer.mfcc.MfccValue;
+import com.bsuir.speech_recognizer.settings.Settings;
 import com.bsuir.speech_recognizer.sound.Word;
 import com.bsuir.speech_recognizer.sound.logic.Analyzer;
 import com.bsuir.speech_recognizer.sound.logic.Splitter;
@@ -47,11 +49,13 @@ public class Main {
 
             double entropyValue;
 
+
             for (SoundFrame soundFrame : soundFrames) {
 
                 double[] normalizedData = normalizer.normalize(soundFrame.getFrameData(),
                                                                 soundFrame.getStartPosition(),
                                                                 soundFrame.getEndPosition());
+
                 soundFrame.setNormalizedFrameData(normalizedData);
 
 
@@ -75,11 +79,6 @@ public class Main {
             System.out.println(speech.getWords().size());
 
             ArrayList<Word> words = speech.getWords();
-            for (Word word : words) {
-                System.out.println("\nword");
-                System.out.println("Start frame = " + word.getStartFrame() + " position " + word.getStartPosition());
-                System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
-            }
 
             getMelByFrames(words, soundFrames);
 //            getMelByWord(words);
@@ -106,26 +105,46 @@ public class Main {
     }
 
     private static void getMelByFrames(ArrayList<Word> words, ArrayList<SoundFrame> soundFrames) {
-        double[] temp = new double[12];
-        for (int i = 0; i < 12; i++) {
-            temp[i] = 0.0;
-        }
+        SoundMap soundMap = new SoundMap();
+
         int counter = 0;
         for (Word word : words) {
+
+            double[] temp = new double[Settings.MFCC_SIZE];
+            for (int j = 0; j < Settings.MFCC_SIZE; j++) {
+                temp[j] = 0.0;
+            }
+
+            System.out.println("\nword");
+            System.out.println("Start frame = " + word.getStartFrame() + " position " + word.getStartPosition());
+            System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
+
             for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
-                counter++;
                 SoundFrame soundFrame = soundFrames.get(i);
+
+
+                counter++;
+
                 soundFrame.setMfccValue(Mfcc.transform(soundFrame));
+
                 MfccValue mfccValue = soundFrame.getMfccValue();
-                for (int k = 0; k < 12; k++) {
+
+
+                System.out.println(soundMap.getValue(mfccValue));
+
+//                System.out.println(Arrays.toString(mfccValue.getValue()));
+
+
+                for (int k = 0; k < Settings.MFCC_SIZE; k++) {
                     temp[k] += mfccValue.getValue()[k];
                 }
             }
 
-            for (int k = 0; k < 12; k++) {
+
+            for (int k = 0; k < Settings.MFCC_SIZE; k++) {
                 temp[k] /= counter;
             }
-            System.out.println("Res = " + Arrays.toString(temp));
+//            System.out.println("Res = " + Arrays.toString(temp));
         }
     }
 

@@ -43,7 +43,7 @@ public class Mfcc {
 
 
     private static double[] calculatePower(double[] fourierRaw, int length, double[][] melFilters) {
-        double[] logPower = new double[(int) MFCC_SIZE];
+        double[] logPower = new double[MFCC_SIZE];
 
         for (int i = 0; i < MFCC_SIZE; i++) {
             logPower[i] = 0;
@@ -53,7 +53,7 @@ public class Mfcc {
             }
 
             // TODO: 4/30/17 May be need remove in future
-            logPower[i] = Math.log10(logPower[i]);
+            logPower[i] = Math.log(logPower[i]);
         }
 
         return logPower;
@@ -61,51 +61,43 @@ public class Mfcc {
 
 
     private static double[][] getMelFilters(int filterLength) {
-        double[] fb = new double[(int) (MFCC_SIZE)];
-        double max = convertToMel(MFCC_FREQ_MAX);
-        double min = convertToMel(MFCC_FREQ_MIN);
 
+        double[] fb = new double[MFCC_SIZE + 2];
+        fb[0] = convertToMel(MFCC_FREQ_MIN);
+        fb[MFCC_SIZE + 1] = convertToMel(MFCC_FREQ_MAX);
 
-        for (int i = 0; i < MFCC_SIZE; i++) {
-            fb[i] = min + i * (max - min) / (MFCC_SIZE + 1);
+        for (int m = 1; m < MFCC_SIZE + 1; m++) {
+            fb[m] = fb[0] + m * (fb[MFCC_SIZE + 1] - fb[0]) / (MFCC_SIZE + 1);
         }
 
-        for (int i = 0; i < MFCC_SIZE; i++) {
-            fb[i] = convertFromMel(fb[i]);
+        for (int m = 0; m < MFCC_SIZE + 2; m++) {
 
-            fb[i] = filterLength * fb[i] / MFCC_FREQ;
+            fb[m] = convertFromMel(fb[m]);
+
+            fb[m] = (int)((filterLength + 1) * fb[m] / (double) MFCC_FREQ);
+
         }
 
-        double[][] filterBanks = new double[(int) MFCC_SIZE][filterLength];
+        double[][] filterBanks = new double[MFCC_SIZE][filterLength];
 
-        // TODO : make sure that it is right
 
-        for (int i = 0; i < MFCC_SIZE; i++) {
+        for (int m = 1; m < MFCC_SIZE + 1; m++) {
             for (int k = 0; k < filterLength; k++) {
-                if (i == 0) {
-                    filterBanks[i][k] = mel(fb[i], min, fb[i + 1], k);
-                } else if (i == MFCC_SIZE - 1) {
-                    filterBanks[i][k] = mel(fb[i], fb[i -1], max, k);
+
+                if (fb[m - 1] <= k && k <= fb[m]) {
+                    filterBanks[m - 1][k] = (k - fb[m - 1]) / (fb[m] - fb[m - 1]);
+
+                } else if (fb[m] < k && k <= fb[m + 1]) {
+                    filterBanks[m - 1][k] = (fb[m + 1] - k) / (fb[m + 1] - fb[m]);
+
                 } else {
-                    filterBanks[i][k] = mel(fb[i], fb[i - 1], fb[i + 1], k);
+                    filterBanks[m - 1][k] = 0;
                 }
             }
-
         }
+
 
         return filterBanks;
-    }
-
-    private static double mel(double current, double min, double max, int k) {
-        double result = 0;
-        if (min <= k && k < current) {
-            result = (k - min) / (current - min);
-        } else if (current < k && k <= max) {
-            result = (max - k) / (max - current);
-        } else if (k == current) {
-            result = 1;
-        }
-        return result;
     }
 
 
