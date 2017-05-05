@@ -30,12 +30,12 @@ public class Main {
 
         SoundRecorder recorder = new SoundRecorder(true);
 
-        recorder.startRecording();
+        /*recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();
+        recorder.stopRecording();*/
 
         Splitter splitter = new Splitter();
         Speech speech = new Speech(recorder.getBytes());
@@ -60,7 +60,7 @@ public class Main {
 
 
                 entropyValue = entropy.getEntropy(soundFrame);
-                ApplicationWindow.draw(entropyValue);
+//                ApplicationWindow.draw(entropyValue);
 
                 bufferedWriter.write(entropyValue + "\n");
 
@@ -88,14 +88,14 @@ public class Main {
             e.printStackTrace();
         }
 
-//        printHelpData(soundFrames.size(), args);
+        printHelpData(speech.getWords(), args);
 
     }
 
-    private static void printHelpData(int soundFramesCount, String ...args) {
-        ApplicationWindow.SIZE = soundFramesCount;
+    private static void printHelpData(ArrayList<Word> words, String ...args) {
+
         ApplicationWindow applicationWindow = new ApplicationWindow();
-        applicationWindow.initialize(args);
+        applicationWindow.initialize(words, args);
     }
 
     private static void getMelByWord(ArrayList<Word> words) {
@@ -130,9 +130,9 @@ public class Main {
                 MfccValue mfccValue = soundFrame.getMfccValue();
 
 
-                System.out.println(soundMap.getValue(mfccValue));
+//                System.out.println(soundMap.getValue(mfccValue));
 
-//                System.out.println(Arrays.toString(mfccValue.getValue()));
+                System.out.println(Arrays.toString(mfccValue.getValue()));
 
 
                 for (int k = 0; k < Settings.MFCC_SIZE; k++) {
@@ -144,7 +144,7 @@ public class Main {
             for (int k = 0; k < Settings.MFCC_SIZE; k++) {
                 temp[k] /= counter;
             }
-//            System.out.println("Res = " + Arrays.toString(temp));
+            System.out.println("Res = " + Arrays.toString(temp));
         }
     }
 
