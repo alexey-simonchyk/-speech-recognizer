@@ -13,7 +13,7 @@ public class Settings {
         if (USE_FFT) {
             FRAME_SIZE = 4096; // 2048
         } else {
-            FRAME_SIZE = 2048;
+            FRAME_SIZE = 4096;
         }
         FRAME_SHIFT = FRAME_SIZE / 2;
     }
@@ -29,6 +29,6 @@ public class Settings {
     public static final int MFCC_FREQ_MIN = 300;
     public static final int MFCC_FREQ_MAX = 8000;
     public static final int MFCC_SIZE = 12;
-    public static final int MFCC_FREQ = 44100;
+    public static final int MFCC_FREQ = 22050;
 
 }

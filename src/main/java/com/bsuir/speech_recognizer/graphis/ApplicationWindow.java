@@ -54,7 +54,7 @@ public class ApplicationWindow extends Application {
         ArrayList<XYChart.Data<Object, Object>> result = new ArrayList<>();
         double[] mfcc = soundFrame.getMfccValue().getValue();
 
-        for (int i = 1; i < Settings.MFCC_SIZE; i++) {
+        for (int i = 0; i < Settings.MFCC_SIZE; i++) {
             result.add(new XYChart.Data<Object, Object>(i, mfcc[i]));
         }
         return result;
