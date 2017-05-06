@@ -41,18 +41,20 @@ public class ApplicationWindow extends Application {
         for (Word word : words) {
             LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
             ArrayList<SoundFrame> frames = word.getFrames();
-            for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
+            for (int i = word.getStartFrame() ; i <= word.getEndFrame(); i++) {
                 lineChart.getData().add(new XYChart.Series<>(temp + Integer.toString(i), FXCollections.observableArrayList(getCharts(frames.get(i)))));
             }
+
             this.vBox.getChildren().add(lineChart);
         }
+
     }
 
     private ArrayList<XYChart.Data<Object, Object>> getCharts(SoundFrame soundFrame) {
         ArrayList<XYChart.Data<Object, Object>> result = new ArrayList<>();
         double[] mfcc = soundFrame.getMfccValue().getValue();
 
-        for (int i = 0; i < Settings.MFCC_SIZE; i++) {
+        for (int i = 1; i < Settings.MFCC_SIZE; i++) {
             result.add(new XYChart.Data<Object, Object>(i, mfcc[i]));
         }
         return result;

@@ -6,6 +6,7 @@ public class SoundFrame {
 
     private byte[] frameData = null;
     private double[] normalizedFrameData = null;
+    public double[] fourier;
 
     private MfccValue mfccValue;
     private int startPosition;

@@ -13,7 +13,7 @@ public class Settings {
         if (USE_FFT) {
             FRAME_SIZE = 4096; // 2048
         } else {
-            FRAME_SIZE = 882;
+            FRAME_SIZE = 2048;
         }
         FRAME_SHIFT = FRAME_SIZE / 2;
     }

@@ -17,7 +17,7 @@ public class Mfcc {
         } else {
             fourierRaw = fourierTransform(soundFrame.getNormalizedFrameData(), sampleLength, USE_WINDOW_FUNCTION);
         }
-
+        soundFrame.fourier =fourierRaw;
 
 
         double[][] melFilters = getMelFilters(sampleLength);
@@ -34,7 +34,7 @@ public class Mfcc {
             dctTransform[i] = 0;
 
             for (int k = 0; k < logPower.length; k++) {
-                dctTransform[i] += logPower[k] * Math.cos(Math.PI * i * (k + 0.5) / logPower.length);
+                dctTransform[i] += logPower[k] * Math.cos(Math.PI * (i + 1) * (k + 1.5) / logPower.length);
             }
         }
 
@@ -83,7 +83,6 @@ public class Mfcc {
 
         for (int m = 1; m < MFCC_SIZE + 1; m++) {
             for (int k = 0; k < filterLength; k++) {
-
                 if (fb[m - 1] <= k && k <= fb[m]) {
                     filterBanks[m - 1][k] = (k - fb[m - 1]) / (fb[m] - fb[m - 1]);
 
@@ -116,13 +115,14 @@ public class Mfcc {
             fourierTempRaw[i] = new Complex();
             for(int j = 0; j < length; j++)
             {
+                if (useWindow) {
+                    fourierTempRaw[i].multiply(window);
+                }
+
                 double temp = (2 * j * i * Math.PI) / length;
                 fourierTempRaw[i].real += data[j] * Math.cos(temp);
                 fourierTempRaw[i].img += data[j] * Math.sin(temp);
 
-                if (useWindow) {
-                    fourierTempRaw[i].multiply(window);
-                }
 
             }
 

@@ -40,8 +40,12 @@ public class Main {
         Splitter splitter = new Splitter();
         Speech speech = new Speech(recorder.getBytes());
 
+
         Entropy entropy = new Entropy();
         Normalizer normalizer = new Normalizer();
+
+//        kix = normalizer.normalize(kix, 0, length);
+
         splitter.splitSoundOnFrames(speech);
         ArrayList<SoundFrame> soundFrames = speech.getSoundFrames();
 
@@ -52,7 +56,11 @@ public class Main {
 
             for (SoundFrame soundFrame : soundFrames) {
 
-                double[] normalizedData = normalizer.normalize(soundFrame.getFrameData(),
+                /*double[] normalizedData = new double[soundFrame.getEndPosition() - soundFrame.getStartPosition()];
+                for (int i = 0; i < soundFrame.getEndPosition() - soundFrame.getStartPosition(); i++) {
+                    normalizedData[i] = kix[soundFrame.getStartPosition() + i];
+                }*/
+                double[] normalizedData = normalizer.normalize( soundFrame.getFrameData(),
                                                                 soundFrame.getStartPosition(),
                                                                 soundFrame.getEndPosition());
 
@@ -76,9 +84,11 @@ public class Main {
             Analyzer analyzer = new Analyzer();
             analyzer.analyzeWords(speech);
 
+
             System.out.println(speech.getWords().size());
 
             ArrayList<Word> words = speech.getWords();
+
 
             getMelByFrames(words, soundFrames);
 //            getMelByWord(words);
@@ -107,9 +117,8 @@ public class Main {
     private static void getMelByFrames(ArrayList<Word> words, ArrayList<SoundFrame> soundFrames) {
         SoundMap soundMap = new SoundMap();
 
-        int counter = 0;
         for (Word word : words) {
-
+            int counter = 0;
             double[] temp = new double[Settings.MFCC_SIZE];
             for (int j = 0; j < Settings.MFCC_SIZE; j++) {
                 temp[j] = 0.0;
@@ -121,7 +130,6 @@ public class Main {
 
             for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
                 SoundFrame soundFrame = soundFrames.get(i);
-
 
                 counter++;
 
