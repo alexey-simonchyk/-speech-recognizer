@@ -21,6 +21,14 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.0</version>
+        </dependency>
+    </dependencies>
+
     <!--<repositories>
         <repository>
             <id>snapshots-repo</id>

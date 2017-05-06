@@ -26,9 +26,9 @@ public class Settings {
 
     public final static int BYTES_IN_ONE_SECOND = (int)(FRAME_RATE * BYTES_IN_FRAME);
 
-    public static final int MFCC_FREQ_MIN = 300;
+    public static final int MFCC_FREQ_MIN = 80;
     public static final int MFCC_FREQ_MAX = 8000;
     public static final int MFCC_SIZE = 12;
-    public static final int MFCC_FREQ = 22050;
+    public static final int MFCC_FREQ = 44100;
 
 }

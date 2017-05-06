@@ -138,7 +138,9 @@ public class Main {
                 MfccValue mfccValue = soundFrame.getMfccValue();
 
 
-//                System.out.println(soundMap.getValue(mfccValue));
+
+
+                System.out.println(soundMap.getValue(mfccValue));
 
                 System.out.println(Arrays.toString(mfccValue.getValue()));
 

@@ -4,7 +4,7 @@ import com.bsuir.speech_recognizer.sound.SoundFrame;
 
 public class Entropy {
 
-    private final static double LIMIT = 1.665; // 1.98 1.665 2.4 2.3
+    private final static double LIMIT = 1.653; // 1.98 1.665 2.4 2.3
     private final int MIN_ROW_VALUE = -1;
     private final int MAX_ROW_VALUE = 1;
     private final int ROWS_COUNT = 100;
