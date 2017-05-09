@@ -6,6 +6,7 @@ public class Speech {
     private byte[] data;
     private ArrayList<SoundFrame> soundFrames = null;
     private ArrayList<Word> words = null;
+    public double[] kix;
 
     public Speech(byte[] data) {
         this.data = data;

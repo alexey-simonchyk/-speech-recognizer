@@ -1,7 +1,7 @@
 package com.bsuir.speech_recognizer.math;
 
 public class Normalizer {
-    public double[] normalize(byte[] data, int startPosition, int endPosition) {
+    public static double[] normalize(byte[] data, int startPosition, int endPosition) {
         double[] result = new double[endPosition - startPosition];
         double vectorLength = getVectorLength(data, startPosition, endPosition);
         int counter = 0;
@@ -11,7 +11,7 @@ public class Normalizer {
         return result;
     }
 
-    private double getVectorLength(byte[] vector, int startPosition, int endPosition) {
+    private static double getVectorLength(byte[] vector, int startPosition, int endPosition) {
         double result = 0;
         for (int i = startPosition; i < endPosition; i++) {
             byte temp = vector[i];
@@ -21,7 +21,7 @@ public class Normalizer {
         return result;
     }
 
-    public double[] normalize(double[] data, int startPosition, int endPosition) {
+    public static double[] normalize(double[] data, int startPosition, int endPosition) {
         double[] result = new double[endPosition - startPosition];
         double vectorLength = getVectorLength(data, startPosition, endPosition);
         int counter = 0;
@@ -31,7 +31,7 @@ public class Normalizer {
         return result;
     }
 
-    private double getVectorLength(double[] vector, int startPosition, int endPosition) {
+    private static double getVectorLength(double[] vector, int startPosition, int endPosition) {
         double result = 0;
         for (int i = startPosition; i < endPosition; i++) {
             double temp = vector[i];
@@ -41,7 +41,7 @@ public class Normalizer {
         return result;
     }
 
-    public double[] normalize(double[] data) {
+    public static double[] normalize(double[] data) {
         double[] result = new double[data.length];
         double vectorLength = getVectorLength(data);
         int counter = 0;
@@ -51,7 +51,7 @@ public class Normalizer {
         return result;
     }
 
-    private double getVectorLength(double[] vector) {
+    private static double getVectorLength(double[] vector) {
         double result = 0;
         for (int i = 0; i < vector.length; i++) {
             double temp = vector[i];

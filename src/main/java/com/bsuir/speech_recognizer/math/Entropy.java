@@ -4,17 +4,17 @@ import com.bsuir.speech_recognizer.sound.SoundFrame;
 
 public class Entropy {
 
-    private final static double LIMIT = 1.653; // 1.98 1.665 2.4 2.3
-    private final int MIN_ROW_VALUE = -1;
-    private final int MAX_ROW_VALUE = 1;
-    private final int ROWS_COUNT = 100;
-    private final double ROW_SIZE = (MAX_ROW_VALUE - MIN_ROW_VALUE) / (double)ROWS_COUNT;
+    private final static double LIMIT = 2.34; // 1.9582079 1.98 1.665 2.4 2.3
+    private final static int MIN_ROW_VALUE = -1;
+    private final static int MAX_ROW_VALUE = 1;
+    private final static int ROWS_COUNT = 100;
+    private final static double ROW_SIZE = (MAX_ROW_VALUE - MIN_ROW_VALUE) / (double)ROWS_COUNT;
 
-    public boolean isSilence(double coefficient) {
+    public static boolean isSilence(double coefficient) {
         return coefficient < LIMIT;
     }
 
-    public double getEntropy(SoundFrame soundFrame) {
+    public static double getEntropy(SoundFrame soundFrame) {
 
         double result = 0;
         double[] probabilities = new double[ROWS_COUNT];

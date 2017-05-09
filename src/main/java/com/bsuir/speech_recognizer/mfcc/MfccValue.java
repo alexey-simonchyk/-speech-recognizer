@@ -1,6 +1,8 @@
 package com.bsuir.speech_recognizer.mfcc;
 
-public class MfccValue {
+import java.io.Serializable;
+
+public class MfccValue implements Serializable {
     private double[] value;
 
     public MfccValue() {

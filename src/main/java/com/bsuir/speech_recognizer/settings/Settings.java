@@ -10,11 +10,7 @@ public class Settings {
     public static int FRAME_SHIFT;
 
     static {
-        if (USE_FFT) {
-            FRAME_SIZE = 4096; // 2048
-        } else {
-            FRAME_SIZE = 4096;
-        }
+        FRAME_SIZE = 882;
         FRAME_SHIFT = FRAME_SIZE / 2;
     }
 
@@ -26,9 +22,10 @@ public class Settings {
 
     public final static int BYTES_IN_ONE_SECOND = (int)(FRAME_RATE * BYTES_IN_FRAME);
 
-    public static final int MFCC_FREQ_MIN = 80;
-    public static final int MFCC_FREQ_MAX = 8000;
-    public static final int MFCC_SIZE = 12;
+    public static final int MFCC_FREQ_MIN = 0;
+    public static final int MFCC_FREQ_MAX = 4000;
+    public static final int MFCC_SIZE = 40;
+    public static final int MFCC_USE = 20;
     public static final int MFCC_FREQ = 44100;
 
 }

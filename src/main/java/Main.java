@@ -11,42 +11,212 @@ import com.bsuir.speech_recognizer.sound.logic.Splitter;
 import com.bsuir.speech_recognizer.sound.SoundFrame;
 import com.bsuir.speech_recognizer.sound.SoundRecorder;
 import com.bsuir.speech_recognizer.sound.Speech;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
 
+    private static SoundMap soundMap = new SoundMap();
     public static void main(String ...args) {
-        testMethod(args);
+        soundMap.deserialize();
+        Scanner scanner = new Scanner(System.in);
+        boolean check = true;
+        while (check) {
+            System.out.println("\n\t1 - recognize word\n\t2 - teach new word\n\t3 - print words" +
+                    "\n\t4 - remove word\n\t5 - print word values\n\t6 - run server\n\t0 - exit\n\t` - exit without save" +
+                    "\n\t7 - delete all words\n");
+
+            String input = scanner.next();
+            switch (input) {
+                case "7":
+                    removeAllWords();
+                    break;
+                case "`":
+                    System.exit(0);
+                    break;
+                case "4":
+                    removeWord();
+                    break;
+                case "6":
+                    System.out.println("No Server yet");
+                    break;
+                case "5":
+                    printWordValues();
+                    break;
+                case "0":
+                    check = false;
+                    break;
+                case "3":
+                    printWords();
+                    break;
+                case "2":
+                    teach();
+                    break;
+                case "1":
+                    recognize(args);
+                    break;
+            }
+
+        }
+        soundMap.serialize();
+    }
+
+    private static void removeAllWords() {
+        soundMap.removeAllWords();
+    }
+
+    private static void removeWord() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Write word to delete");
+        String word = scanner.next();
+        soundMap.removeWord(word);
+    }
+
+    private static void printWordValues() {
+        ArrayList<String> information = soundMap.getWordsValues();
+        for (String word : information) {
+            System.out.println(word);
+        }
+    }
+
+    private static void printWords() {
+        String[] words = soundMap.getWords();
+        for (String word : words) {
+            System.out.println(word);
+        }
+    }
+
+    private static void teach() {
+        SoundRecorder recorder = new SoundRecorder(true);
+
+        System.out.println("Recording started, to end enter `");
+        recorder.startRecording();
+
+        Scanner scanner = new Scanner(System.in);
+        while (!scanner.next().equals("`")){}
+
+        recorder.stopRecording();
+        System.out.println("Recording stopped");
+
+        Speech speech = new Speech(recorder.getBytes());
+
+
+        double[] kix = new double[speech.getData().length];
+        for (int i = 0; i < speech.getData().length; i++) {
+            kix[i] = speech.getData()[i];
+        }
+
+        Splitter.splitSoundOnFrames(speech);
+        ArrayList<SoundFrame> soundFrames = speech.getSoundFrames();
+
+
+        double entropyValue;
+
+
+        for (SoundFrame soundFrame : soundFrames) {
+
+
+            double[] normalizedData = Normalizer.normalize( soundFrame.getFrameData(),
+                    soundFrame.getStartPosition(),
+                    soundFrame.getEndPosition());
+            soundFrame.setNormalizedFrameData(normalizedData);
+
+
+            entropyValue = Entropy.getEntropy(soundFrame);
+
+
+            boolean isSilence;
+            isSilence = Entropy.isSilence(entropyValue);
+            soundFrame.setSilence(isSilence);
+            soundFrame.setEntropyValue(entropyValue);
+
+        }
+
+        Splitter.splitIntoWords(speech);
+
+        Analyzer analyzer = new Analyzer();
+        analyzer.analyzeWords(speech);
+
+
+        System.out.println("Number words = " + speech.getWords().size());
+
+        ArrayList<Word> words = speech.getWords();
+
+        for (Word word : words) {
+            Splitter.splitInLargeFrames(word);
+        }
+
+        for (Word word : words) {
+
+            int counter = 0;
+            double[] temp = new double[Settings.MFCC_USE];
+            for (int j = 0; j < Settings.MFCC_USE; j++) {
+                temp[j] = 0.0;
+            }
+
+            for (SoundFrame soundFrame : word.getFrames()) {
+
+                counter++;
+
+                double[] t = new double[soundFrame.getEndPosition() - soundFrame.getStartPosition()];
+                for (int j = 0; j < soundFrame.getEndPosition() - soundFrame.getStartPosition(); j++) {
+                    t[j] = kix[j + soundFrame.getStartPosition()] - 0.95 * kix[j - 1 + soundFrame.getStartPosition()];
+                }
+                soundFrame.setNormalizedFrameData(t);
+
+
+                soundFrame.setMfccValue(Mfcc.transform(soundFrame));
+
+                MfccValue mfccValue = soundFrame.getMfccValue();
+
+                for (int k = 0; k < Settings.MFCC_USE; k++) {
+                    temp[k] += mfccValue.getValue()[k];
+                }
+            }
+
+
+            for (int k = 0; k < Settings.MFCC_USE; k++) {
+                temp[k] /= counter;
+            }
+            word.result = temp;
+        }
+
+        ArrayList<MfccValue> mfccValues = new ArrayList<>();
+        for (Word word : words) {
+            mfccValues.add(new MfccValue(word.result));
+        }
+
+        System.out.println("Which word is it");
+        String wordName = scanner.next();
+        soundMap.addWord(wordName, mfccValues);
+        System.out.println("New word was added");
     }
 
 
-    private static void testMethod(String ...args) {
+    private static void recognize(String ...args) {
 
         SoundRecorder recorder = new SoundRecorder(true);
 
+        System.out.println("Recording started, to end enter `");
         /*recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();*/
+        recorder.stopRecording();
+        */System.out.println("Recording stopped");
 
-        Splitter splitter = new Splitter();
         Speech speech = new Speech(recorder.getBytes());
 
 
-        Entropy entropy = new Entropy();
-        Normalizer normalizer = new Normalizer();
+        double[] kix = new double[speech.getData().length];
+        for (int i = 0; i < speech.getData().length; i++) {
+            kix[i] = speech.getData()[i];
+        }
 
-//        kix = normalizer.normalize(kix, 0, length);
-
-        splitter.splitSoundOnFrames(speech);
+        Splitter.splitSoundOnFrames(speech);
         ArrayList<SoundFrame> soundFrames = speech.getSoundFrames();
 
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("results.txt"))) {
@@ -56,30 +226,25 @@ public class Main {
 
             for (SoundFrame soundFrame : soundFrames) {
 
-                /*double[] normalizedData = new double[soundFrame.getEndPosition() - soundFrame.getStartPosition()];
-                for (int i = 0; i < soundFrame.getEndPosition() - soundFrame.getStartPosition(); i++) {
-                    normalizedData[i] = kix[soundFrame.getStartPosition() + i];
-                }*/
-                double[] normalizedData = normalizer.normalize( soundFrame.getFrameData(),
+
+                double[] normalizedData = Normalizer.normalize( soundFrame.getFrameData(),
                                                                 soundFrame.getStartPosition(),
                                                                 soundFrame.getEndPosition());
-
                 soundFrame.setNormalizedFrameData(normalizedData);
 
 
-                entropyValue = entropy.getEntropy(soundFrame);
-//                ApplicationWindow.draw(entropyValue);
+                entropyValue = Entropy.getEntropy(soundFrame);
 
                 bufferedWriter.write(entropyValue + "\n");
 
                 boolean isSilence;
-                isSilence = entropy.isSilence(entropyValue);
+                isSilence = Entropy.isSilence(entropyValue);
                 soundFrame.setSilence(isSilence);
                 soundFrame.setEntropyValue(entropyValue);
 
             }
 
-            splitter.splitIntoWords(speech);
+            Splitter.splitIntoWords(speech);
 
             Analyzer analyzer = new Analyzer();
             analyzer.analyzeWords(speech);
@@ -90,71 +255,87 @@ public class Main {
             ArrayList<Word> words = speech.getWords();
 
 
-            getMelByFrames(words, soundFrames);
-//            getMelByWord(words);
+            getMelByFrames(words, soundFrames, kix, recorder);
 
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        printHelpData(speech.getWords(), args);
+//        printHelpData(speech.getWords(), args);
 
     }
 
-    private static void printHelpData(ArrayList<Word> words, String ...args) {
 
+
+
+
+
+    private static void printHelpData(ArrayList<Word> words, String ...args) {
         ApplicationWindow applicationWindow = new ApplicationWindow();
         applicationWindow.initialize(words, args);
     }
 
-    private static void getMelByWord(ArrayList<Word> words) {
+
+    private static void getMelByFrames(ArrayList<Word> words, ArrayList<SoundFrame> soundFrames, double[] kix, SoundRecorder recorder) {
+
         for (Word word : words) {
-            System.out.println(Arrays.toString(Mfcc.transform(word)));
+            Splitter.splitInLargeFrames(word);
         }
-    }
 
-    private static void getMelByFrames(ArrayList<Word> words, ArrayList<SoundFrame> soundFrames) {
-        SoundMap soundMap = new SoundMap();
+
+        int fileCounter = 0;
 
         for (Word word : words) {
+
             int counter = 0;
-            double[] temp = new double[Settings.MFCC_SIZE];
-            for (int j = 0; j < Settings.MFCC_SIZE; j++) {
+            double[] temp = new double[Settings.MFCC_USE];
+            for (int j = 0; j < Settings.MFCC_USE; j++) {
                 temp[j] = 0.0;
             }
 
-            System.out.println("\nword");
-            System.out.println("Start frame = " + word.getStartFrame() + " position " + word.getStartPosition());
-            System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
+//            System.out.println("\nword");
+//            System.out.println("Start frame = " + word.getStartFrame() + " position " + word.getStartPosition());
+//            System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
 
-            for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
-                SoundFrame soundFrame = soundFrames.get(i);
-
+            for (SoundFrame soundFrame : word.getFrames()) {
                 counter++;
+
+                double[] t = new double[soundFrame.getEndPosition() - soundFrame.getStartPosition()];
+                for (int j = 0; j < soundFrame.getEndPosition() - soundFrame.getStartPosition(); j++) {
+                    t[j] = kix[j + soundFrame.getStartPosition()] - 0.95 * kix[j - 1 + soundFrame.getStartPosition()];
+                }
+                soundFrame.setNormalizedFrameData(t);
+
 
                 soundFrame.setMfccValue(Mfcc.transform(soundFrame));
 
                 MfccValue mfccValue = soundFrame.getMfccValue();
 
+//                System.out.println(soundMap.getValue(mfccValue));
+
+//                System.out.println(Arrays.toString(mfccValue.getValue()));
 
 
-
-                System.out.println(soundMap.getValue(mfccValue));
-
-                System.out.println(Arrays.toString(mfccValue.getValue()));
-
-
-                for (int k = 0; k < Settings.MFCC_SIZE; k++) {
+                for (int k = 0; k < Settings.MFCC_USE; k++) {
                     temp[k] += mfccValue.getValue()[k];
                 }
             }
 
 
-            for (int k = 0; k < Settings.MFCC_SIZE; k++) {
+            for (int k = 0; k < Settings.MFCC_USE ; k++) {
                 temp[k] /= counter;
             }
+            word.result = temp;
             System.out.println("Res = " + Arrays.toString(temp));
+            System.out.println(soundMap.getValue(new MfccValue(temp)));
+
+            int length = word.getEndPosition() - word.getStartPosition();
+            byte[] data = new byte[length];
+            for (int i = 0; i < length; i++) {
+                data[i] = word.getFrames().get(0).getFrameData()[word.getStartPosition() + i];
+            }
+            recorder.getInputStream(data, "Word" + fileCounter++ + ".wav");
         }
     }
 

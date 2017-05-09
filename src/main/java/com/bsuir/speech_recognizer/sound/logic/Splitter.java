@@ -9,7 +9,7 @@ import static com.bsuir.speech_recognizer.settings.Settings.*;
 
 public class Splitter {
 
-    public void splitSoundOnFrames(Speech speech) {
+    public static void splitSoundOnFrames(Speech speech) {
         ArrayList<SoundFrame> result = new ArrayList<SoundFrame>();
         byte[] data = speech.getData();
         int currentPosition = 0;
@@ -34,7 +34,7 @@ public class Splitter {
         speech.setSoundFrames(result);
     }
 
-    public void splitIntoWords(Speech speech) {
+    public static void splitIntoWords(Speech speech) {
         ArrayList<SoundFrame> soundFrames = speech.getSoundFrames();
         ArrayList<Word> words = new ArrayList<Word>();
 
@@ -73,6 +73,37 @@ public class Splitter {
 
 
         speech.setWords(words);
+    }
+
+    private final static int LARGE_FRAME_SIZE = 4096;
+
+    public static void splitInLargeFrames(Word word) {
+        int start = word.getStartPosition();
+        int end = word.getEndPosition();
+        int currentPosition = start;
+        ArrayList<SoundFrame> soundFrames = new ArrayList<>(0);
+        byte[] data = word.getFrames().get(0).getFrameData();
+
+
+        boolean check = true;
+        while (check) {
+            SoundFrame soundFrame = new SoundFrame(data);
+            int endPosition = currentPosition + LARGE_FRAME_SIZE;
+
+            if (endPosition > end) {
+                endPosition = end;
+                check = false;
+            }
+
+            soundFrame.setStartPosition(currentPosition);
+            soundFrame.setEndPosition(endPosition);
+
+            currentPosition += LARGE_FRAME_SIZE / 3;
+            soundFrames.add(soundFrame);
+        }
+
+        word.setFrames(soundFrames);
+
     }
 
 }

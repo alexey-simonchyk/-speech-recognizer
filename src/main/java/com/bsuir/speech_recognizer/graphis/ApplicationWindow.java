@@ -38,12 +38,18 @@ public class ApplicationWindow extends Application {
 
     private void draw() {
         String temp = "Word ";
+        /*for (Word word : words) {
+            LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
+            for (SoundFrame soundFrame : word.getFrames()) {
+                lineChart.getData().add(new XYChart.Series<>(temp + Integer.toString(2), FXCollections.observableArrayList(getCharts(soundFrame))));
+            }
+
+            this.vBox.getChildren().add(lineChart);
+        }*/
+
         for (Word word : words) {
             LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
-            ArrayList<SoundFrame> frames = word.getFrames();
-            for (int i = word.getStartFrame() ; i <= word.getEndFrame(); i++) {
-                lineChart.getData().add(new XYChart.Series<>(temp + Integer.toString(i), FXCollections.observableArrayList(getCharts(frames.get(i)))));
-            }
+                lineChart.getData().add(new XYChart.Series<>(temp + Integer.toString(2), FXCollections.observableArrayList(getCharts(word.result))));
 
             this.vBox.getChildren().add(lineChart);
         }
@@ -54,8 +60,17 @@ public class ApplicationWindow extends Application {
         ArrayList<XYChart.Data<Object, Object>> result = new ArrayList<>();
         double[] mfcc = soundFrame.getMfccValue().getValue();
 
-        for (int i = 0; i < Settings.MFCC_SIZE; i++) {
+        for (int i = 2; i < Settings.MFCC_USE; i++) {
             result.add(new XYChart.Data<Object, Object>(i, mfcc[i]));
+        }
+        return result;
+    }
+
+    private ArrayList<XYChart.Data<Object, Object>> getCharts(double[] data) {
+        ArrayList<XYChart.Data<Object, Object>> result = new ArrayList<>();
+
+        for (int i = 0; i < Settings.MFCC_USE; i++) {
+            result.add(new XYChart.Data<Object, Object>(i, data[i]));
         }
         return result;
     }
