@@ -2,7 +2,6 @@ package com.bsuir.speech_recognizer.hmm;
 
 import com.bsuir.speech_recognizer.math.MathCommon;
 import com.bsuir.speech_recognizer.mfcc.MfccValue;
-import com.sun.scenario.effect.SepiaTone;
 
 import java.io.*;
 import java.util.*;
