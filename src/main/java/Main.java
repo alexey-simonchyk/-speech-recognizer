@@ -23,6 +23,7 @@ public class Main {
 
     private static volatile boolean isServerRunning = false;
     private static SoundMap soundMap = new SoundMap();
+    private static SoundRecorder recorder;
 
     public static void main(String ...args) {
         soundMap.deserialize();
@@ -102,7 +103,7 @@ public class Main {
     }
 
     private static void teach() {
-        SoundRecorder recorder = new SoundRecorder(true);
+        recorder = new SoundRecorder(true);
 
         System.out.println("Recording started, to end enter `");
         recorder.startRecording();
@@ -210,7 +211,7 @@ public class Main {
 
     private static void recognize(String ...args) {
 
-        SoundRecorder recorder = new SoundRecorder(true);
+        recorder = new SoundRecorder(true);
 
         System.out.println("Recording started, to end enter `");
         recorder.startRecording();
