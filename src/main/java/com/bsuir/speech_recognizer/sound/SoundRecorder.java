@@ -59,6 +59,9 @@ public class SoundRecorder {
         //TODO: Временно
         lastRecord = new File("temp.wav");
 
+        if (!lastRecord.exists()) {
+            return null;
+        }
 
         byte[] result = null;
 

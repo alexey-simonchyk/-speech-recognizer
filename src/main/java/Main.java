@@ -52,6 +52,7 @@ public class Main {
                 case "6":
                     if (!isServerRunning) {
                         startServer();
+                        System.out.println("Server started");
                     } else {
                         System.out.println("Server running");
                     }
@@ -102,6 +103,102 @@ public class Main {
         }
     }
 
+    private static void teach(byte[] data, String wordStr) {
+        if (data == null) {
+            return;
+        }
+        Speech speech = new Speech(data);
+
+
+        double[] kix = new double[speech.getData().length];
+        for (int i = 0; i < speech.getData().length; i++) {
+            kix[i] = speech.getData()[i];
+        }
+
+        Splitter.splitSoundOnFrames(speech);
+        ArrayList<SoundFrame> soundFrames = speech.getSoundFrames();
+
+
+        double entropyValue;
+
+
+        for (SoundFrame soundFrame : soundFrames) {
+
+
+            double[] normalizedData = Normalizer.normalize( soundFrame.getFrameData(),
+                    soundFrame.getStartPosition(),
+                    soundFrame.getEndPosition());
+            soundFrame.setNormalizedFrameData(normalizedData);
+
+
+            entropyValue = Entropy.getEntropy(soundFrame);
+
+
+            boolean isSilence;
+            isSilence = Entropy.isSilence(entropyValue);
+            soundFrame.setSilence(isSilence);
+            soundFrame.setEntropyValue(entropyValue);
+
+        }
+
+        Splitter.splitIntoWords(speech);
+
+        Analyzer analyzer = new Analyzer();
+        analyzer.analyzeWords(speech);
+
+
+        System.out.println("Number words = " + speech.getWords().size());
+
+        ArrayList<Word> words = speech.getWords();
+
+        for (Word word : words) {
+            Splitter.splitInLargeFrames(word);
+        }
+
+        for (Word word : words) {
+
+            int counter = 0;
+            double[] temp = new double[Settings.MFCC_USE];
+            for (int j = 0; j < Settings.MFCC_USE; j++) {
+                temp[j] = 0.0;
+            }
+
+            for (SoundFrame soundFrame : word.getFrames()) {
+
+                counter++;
+
+                double[] t = new double[soundFrame.getEndPosition() - soundFrame.getStartPosition()];
+                for (int j = 0; j < soundFrame.getEndPosition() - soundFrame.getStartPosition(); j++) {
+                    t[j] = kix[j + soundFrame.getStartPosition()] - 0.95 * kix[j - 1 + soundFrame.getStartPosition()];
+                }
+                soundFrame.setNormalizedFrameData(t);
+
+
+                soundFrame.setMfccValue(Mfcc.transform(soundFrame));
+
+                MfccValue mfccValue = soundFrame.getMfccValue();
+
+                for (int k = 0; k < Settings.MFCC_USE; k++) {
+                    temp[k] += mfccValue.getValue()[k];
+                }
+            }
+
+
+            for (int k = 0; k < Settings.MFCC_USE; k++) {
+                temp[k] /= counter;
+            }
+            word.result = temp;
+        }
+
+        ArrayList<MfccValue> mfccValues = new ArrayList<>();
+        for (Word word : words) {
+            mfccValues.add(new MfccValue(word.result));
+        }
+
+        soundMap.addWord(wordStr, mfccValues);
+        System.out.println("New word was added");
+    }
+
     private static void teach() {
         recorder = new SoundRecorder(true);
 
@@ -114,7 +211,11 @@ public class Main {
         recorder.stopRecording();
         System.out.println("Recording stopped");
 
-        Speech speech = new Speech(recorder.getBytes());
+        byte[] data = recorder.getBytes();
+        if (data == null) {
+            return;
+        }
+        Speech speech = new Speech(data);
 
 
         double[] kix = new double[speech.getData().length];
@@ -214,15 +315,19 @@ public class Main {
         recorder = new SoundRecorder(true);
 
         System.out.println("Recording started, to end enter `");
-        recorder.startRecording();
+        /*recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();
+        recorder.stopRecording();*/
         System.out.println("Recording stopped");
 
-        recognize(recorder.getBytes());
+        byte[] data = recorder.getBytes();
+        if (data == null) {
+            return;
+        }
+        recognize(data);
 
 
 //        printHelpData(speech.getWords(), args);
@@ -317,16 +422,20 @@ public class Main {
                 temp[j] = 0.0;
             }
 
-//            System.out.println("\nword");
-//            System.out.println("Start frame = " + word.getStartFrame() + " position " + word.getStartPosition());
-//            System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
+            System.out.println("\nword");
+            System.out.println("Start frame = " + word.getStartFrame() + " position " + word.getStartPosition());
+            System.out.println("End frame = " + word.getEndFrame() + " position " + word.getEndPosition());
 
             for (SoundFrame soundFrame : word.getFrames()) {
                 counter++;
 
                 double[] t = new double[soundFrame.getEndPosition() - soundFrame.getStartPosition()];
                 for (int j = 0; j < soundFrame.getEndPosition() - soundFrame.getStartPosition(); j++) {
-                    t[j] = kix[j + soundFrame.getStartPosition()] - 0.95 * kix[j - 1 + soundFrame.getStartPosition()];
+                    if (j > 0) {
+                        t[j] = kix[j + soundFrame.getStartPosition()] - 0.95 * kix[j - 1 + soundFrame.getStartPosition()];
+                    } else {
+                        t[j] = kix[j + soundFrame.getStartPosition()];
+                    }
                 }
                 soundFrame.setNormalizedFrameData(t);
 
@@ -351,6 +460,7 @@ public class Main {
             System.out.println(tempWord);
             result.add(tempWord);
 
+
 //            int length = word.getEndPosition() - word.getStartPosition();
 //            byte[] data = new byte[length];
 //            for (int i = 0; i < length; i++) {
@@ -361,36 +471,102 @@ public class Main {
         return result;
     }
 
+    private static final String RECOGNIZE = "RECOGNIZE";
+    private static final String ADD_WORD = "ADD";
 
     private static void startServer() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("1 - home, 2 - mobile");
+        String res = scanner.next();
+        String ip;
+        if (res.equals("1")) {
+            ip = "192.168.0.11";
+        } else {
+            ip = "192.168.43.176";
+        }
+
         new Thread(() -> {
-            try {
-                ServerSocket serverSocket = new ServerSocket(7070, 0, InetAddress.getByName("localhost"));
+            try (ServerSocket serverSocket = new ServerSocket(7071, 0, InetAddress.getByName(ip))) {
 
+
+                Main.isServerRunning = true;
                 while (Main.isServerRunning) {
-                    Socket socket = serverSocket.accept();
-                    DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                    try (
+                            Socket socket = serverSocket.accept();
+                            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                            DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-                    byte[] inputData = new byte[500000];
-                    dataInputStream.read(inputData);
+                    ){
 
-                    ArrayList<String> words = recognize(inputData);
-                    if (words != null) {
-                        for (String word : words) {
-                            dataOutputStream.writeBytes(word);
+                        String command;
+
+                        byte[] inputData = new byte[500000];
+                        command = dataInputStream.readUTF();
+
+                        byte[] data;
+
+                        if (command.contains(ADD_WORD)) {
+                            String word = command.split("_")[1].toLowerCase();
+
+                            int length = Integer.valueOf(command.split("_")[2]);
+
+                            readAudioData(length, dataInputStream, inputData);
+
+                            data = new byte[length];
+                            System.arraycopy(inputData, 0, data, 0, length);
+
+                            teach(data, word);
+                            dataOutputStream.writeUTF(word);
+                            dataOutputStream.flush();
+
+                        } else {
+
+                            int length = Integer.valueOf(command.split("_")[1]);
+
+                            readAudioData(length, dataInputStream, inputData);
+
+                            System.out.println(length);
+                            data = new byte[length];
+                            System.arraycopy(inputData, 0, data, 0, length);
+
+//                            SoundRecorder soundRecorder = new SoundRecorder(true);
+//                            soundRecorder.getBytes();
+//                            soundRecorder.getInputStream(data, "FileName.wav");
+
+
+                            ArrayList<String> words = recognize(data);
+                            StringBuilder stringBuilder = new StringBuilder("");
+                            if (words != null) {
+                                for (String word : words) {
+                                    stringBuilder.append(word);
+                                    stringBuilder.append(" ");
+                                }
+                            }
+//                            Thread.sleep(1000);
+                            dataOutputStream.writeUTF(stringBuilder.toString());
+                            dataOutputStream.flush();
                         }
-                    }
 
-                    dataInputStream.close();
-                    dataOutputStream.close();
-                    socket.close();
+                    } catch (IOException exception) {
+
+                        exception.printStackTrace();
+                    }
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).run();
+        }).start();
+    }
+
+    private static void readAudioData(int length, DataInputStream dataInputStream, byte[] inputData) throws IOException {
+        byte[] buffer = new byte[1024];
+        int tempLength, count;
+        tempLength = 0;
+        while (tempLength != length && (count = dataInputStream.read(buffer)) != -1) {
+            System.arraycopy(buffer, 0, inputData, tempLength, count);
+            tempLength += count;
+        }
     }
 
 }
