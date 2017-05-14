@@ -39,6 +39,7 @@ public class Complex {
         double result;
         result = Math.pow(real, 2) + Math.pow(img, 2);
         return Math.sqrt(result);
+//        return real;
     }
 
     Complex() {

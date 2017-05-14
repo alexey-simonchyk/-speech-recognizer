@@ -1,117 +1,79 @@
 package com.bsuir.speech_recognizer.graphis;
 
+import com.bsuir.speech_recognizer.settings.Settings;
 import com.bsuir.speech_recognizer.sound.SoundFrame;
+import com.bsuir.speech_recognizer.sound.Word;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ApplicationWindow extends Application {
-
-    private static final int LENGTHINESS = 5;
-    private static final int SCALE = -200;
-    private static final int OFFSET = 880;
-    private static final int GRAPHIC_OFFSET = 20;
-
-    private static final int SCREEN_WIDTH = 640;
-    private static final int SCREEN_HEIGHT = 480;
-
-    public static int SIZE = 0;
-
-    private static ArrayList<Double> drawValues = new ArrayList<>();
-
-    private volatile GraphicsContext graphicsContext;
-    private double currentXPosition = GRAPHIC_OFFSET / 2;
-    private double currentYPosition = 0;
-
-    public void initialize(String ...args) {
+    private static ArrayList<Word> words;
+    private VBox vBox;
+    public void initialize(ArrayList<Word> words,  String ...args) {
+        this.words = words;
         launch(args);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Group group = new Group();
-
-        Canvas canvas = new Canvas(SIZE * LENGTHINESS + GRAPHIC_OFFSET * 2, SCREEN_HEIGHT);
-        canvas.setLayoutX(0);
-        canvas.setLayoutY(0);
-
-        ScrollPane scrollPane = new ScrollPane(canvas);
-        scrollPane.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
-        scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setStyle("-fx-focus-color: transparent;");
-        group.getChildren().add(scrollPane);
-        graphicsContext = canvas.getGraphicsContext2D();
-
-        Scene scene = new Scene(group, SCREEN_WIDTH, SCREEN_HEIGHT);
-        primaryStage.setScene(scene);
+        vBox = new VBox();
         draw();
-        drawHelpLines();
+        primaryStage.setScene(new Scene(vBox));
         primaryStage.show();
     }
 
-    private void drawHelpLines() {
-        double temp = 2.2;
-        temp = temp * SCALE + OFFSET;
-        graphicsContext.setStroke(Color.RED);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
-
-        temp = 2.35;
-        temp = temp * SCALE + OFFSET;
-        graphicsContext.setStroke(Color.BLUE);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
-
-        temp = 2.4;
-        temp = temp * SCALE + OFFSET;
-        graphicsContext.setStroke(Color.BROWN);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
-
-        temp = 2.5;
-        temp = temp * SCALE + OFFSET;
-        graphicsContext.setStroke(Color.GREEN);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
-
-        temp = 2.7;
-        temp = temp * SCALE + OFFSET;
-        graphicsContext.setStroke(Color.PINK);
-        graphicsContext.strokeLine(GRAPHIC_OFFSET / 2, temp, SIZE * LENGTHINESS + GRAPHIC_OFFSET / 2, temp);
-    }
-
-    public static void draw(double value) {
-
-        drawValues.add(value);
-    }
-
     private void draw() {
-//        System.out.println(drawValues.size());
-        int counter = 10;
-        for (double value : drawValues) {
-            double temp;
-            temp = value * SCALE + OFFSET;
-            if (currentYPosition != 0) {
-                graphicsContext.strokeLine(currentXPosition, currentYPosition, currentXPosition + LENGTHINESS, temp);
-            } else {
-                graphicsContext.strokeLine(currentXPosition, temp, currentXPosition + LENGTHINESS, temp);
+        String temp = "Word ";
+        /*for (Word word : words) {
+            LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
+            for (SoundFrame soundFrame : word.getFrames()) {
+                lineChart.getData().add(new XYChart.Series<>(temp + Integer.toString(2), FXCollections.observableArrayList(getCharts(soundFrame))));
             }
 
-            currentYPosition = temp;
-            currentXPosition += LENGTHINESS;
-            counter += 5;
-            if (counter % 500 == 0) {
-                drawSecondLine(currentXPosition);
-            }
+            this.vBox.getChildren().add(lineChart);
+        }*/
+
+        for (Word word : words) {
+            LineChart lineChart = new LineChart(new NumberAxis(), new NumberAxis());
+                lineChart.getData().add(new XYChart.Series<>(temp + Integer.toString(2), FXCollections.observableArrayList(getCharts(word.result))));
+
+            this.vBox.getChildren().add(lineChart);
         }
+
     }
 
-    private void drawSecondLine(double offset) {
-        graphicsContext.strokeLine(offset, SCREEN_HEIGHT, offset, SCREEN_HEIGHT - 250);
+    private ArrayList<XYChart.Data<Object, Object>> getCharts(SoundFrame soundFrame) {
+        ArrayList<XYChart.Data<Object, Object>> result = new ArrayList<>();
+        double[] mfcc = soundFrame.getMfccValue().getValue();
+
+        for (int i = 2; i < Settings.MFCC_USE; i++) {
+            result.add(new XYChart.Data<Object, Object>(i, mfcc[i]));
+        }
+        return result;
     }
+
+    private ArrayList<XYChart.Data<Object, Object>> getCharts(double[] data) {
+        ArrayList<XYChart.Data<Object, Object>> result = new ArrayList<>();
+
+        for (int i = 0; i < Settings.MFCC_USE; i++) {
+            result.add(new XYChart.Data<Object, Object>(i, data[i]));
+        }
+        return result;
+    }
+
+
 }

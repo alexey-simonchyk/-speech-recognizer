@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Word {
     private int startPosition;
     private int endPosition;
+    public double[] result;
 
     private int startFrame;
     private int endFrame;

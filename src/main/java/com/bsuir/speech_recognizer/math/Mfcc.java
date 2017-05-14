@@ -1,29 +1,47 @@
 package com.bsuir.speech_recognizer.math;
 
+
+import com.bsuir.speech_recognizer.mfcc.MfccValue;
 import com.bsuir.speech_recognizer.settings.Settings;
 import com.bsuir.speech_recognizer.sound.SoundFrame;
 import com.bsuir.speech_recognizer.sound.Word;
+import edu.emory.mathcs.jtransforms.fft.DoubleFFT_1D;
 
 import static com.bsuir.speech_recognizer.settings.Settings.*;
 
 public class Mfcc {
-    public static double[] transform(SoundFrame soundFrame) {
+    public static MfccValue transform(SoundFrame soundFrame) {
+
         int sampleLength = soundFrame.getNormalizedFrameData().length;
+            sampleLength = (int)Math.pow(2, (int)MathCommon.log(sampleLength, 2));
+
+        DoubleFFT_1D fft = new DoubleFFT_1D(sampleLength);
         double[] fourierRaw;
+
         if (Settings.USE_FFT) {
-            sampleLength = (int)Math.pow(2, (int)Entropy.log(sampleLength, 2));
-            fourierRaw = fourierTransformFast(soundFrame.getNormalizedFrameData(), sampleLength, USE_WINDOW_FUNCTION);
+            double[] input = new double[sampleLength * 2];
+            for (int i = 0; i < sampleLength; i++) {
+                input[i] = soundFrame.getNormalizedFrameData()[i];
+
+            }
+            fft.complexForward(input);
+            fourierRaw = input;
+//            fourierRaw = fourierTransformFast(soundFrame.getNormalizedFrameData(), sampleLength, USE_WINDOW_FUNCTION);
         } else {
             fourierRaw = fourierTransform(soundFrame.getNormalizedFrameData(), sampleLength, USE_WINDOW_FUNCTION);
         }
-
+        soundFrame.fourier = fourierRaw;
 
 
         double[][] melFilters = getMelFilters(sampleLength);
         double[] logPower = calculatePower(fourierRaw, sampleLength, melFilters);
         double[] dctRaw = dctTransform(logPower);
 
-        return dctRaw;
+        double[] result = new double[MFCC_USE];
+        for (int i = 0; i < MFCC_USE; i++) {
+            result[i] = dctRaw[i];
+        }
+        return new MfccValue(result);
     }
 
     private static double[] dctTransform(double[] logPower) {
@@ -33,7 +51,7 @@ public class Mfcc {
             dctTransform[i] = 0;
 
             for (int k = 0; k < logPower.length; k++) {
-                dctTransform[i] += logPower[k] * Math.cos(Math.PI * i * (k + 0.5) / logPower.length);
+                dctTransform[i] += logPower[k] * Math.cos(Math.PI * (i + 1) * (k + 0.5) / logPower.length);
             }
         }
 
@@ -42,7 +60,7 @@ public class Mfcc {
 
 
     private static double[] calculatePower(double[] fourierRaw, int length, double[][] melFilters) {
-        double[] logPower = new double[(int) MFCC_SIZE];
+        double[] logPower = new double[MFCC_SIZE];
 
         for (int i = 0; i < MFCC_SIZE; i++) {
             logPower[i] = 0;
@@ -52,59 +70,91 @@ public class Mfcc {
             }
 
             // TODO: 4/30/17 May be need remove in future
-            logPower[i] = Math.log10(logPower[i]);
+            logPower[i] = Math.log(logPower[i]);
         }
 
         return logPower;
     }
 
+//    private static double[][] getMelFilters(int filterLength) {
+//
+//        double[] fb = new double[MFCC_SIZE + 2];
+//        fb[0] = convertToMel(MFCC_FREQ_MIN);
+//        fb[MFCC_SIZE + 1] = convertToMel(MFCC_FREQ_MAX);
+//
+//        for (int m = 1; m < MFCC_SIZE + 1; m++) {
+//            fb[m] = fb[0] + m * (fb[MFCC_SIZE + 1] - fb[0]) / (MFCC_SIZE + 1);
+//        }
+//
+//        for (int m = 0; m < MFCC_SIZE + 2; m++) {
+//
+//            fb[m] = convertFromMel(fb[m]);
+//
+//            fb[m] = (int)((filterLength + 1) * fb[m] / (double) MFCC_FREQ);
+//
+//        }
+//
+//        double[][] filterBanks = new double[MFCC_SIZE][filterLength];
+//
+//
+//        for (int m = 1; m < MFCC_SIZE + 1; m++) {
+//            for (int k = 0; k < filterLength; k++) {
+//                if (fb[m - 1] <= k && k <= fb[m]) {
+//                    filterBanks[m - 1][k] = (k - fb[m - 1]) / (fb[m] - fb[m - 1]);
+//
+//                } else if (fb[m] < k && k <= fb[m + 1]) {
+//                    filterBanks[m - 1][k] = (fb[m + 1] - k) / (fb[m + 1] - fb[m]);
+//
+//                } else {
+//                    filterBanks[m - 1][k] = 0;
+//                }
+//            }
+//        }
+//
+//
+//        return filterBanks;
+//    }
+
 
     private static double[][] getMelFilters(int filterLength) {
-        double[] fb = new double[(int) (MFCC_SIZE)];
-        double max = convertToMel(MFCC_FREQ_MAX);
+        double[] fb = new double[MFCC_SIZE + 2];
         double min = convertToMel(MFCC_FREQ_MIN);
+        double max = convertToMel(MFCC_FREQ_MAX);
+        double delta = ( max - min ) / (MFCC_SIZE + 2);
 
-
-        for (int i = 0; i < MFCC_SIZE; i++) {
-            fb[i] = min + i * (max - min) / (MFCC_SIZE + 1);
+        for (int i = 1; i < MFCC_SIZE + 1; i++) {
+            fb[i] = min + delta * i;
         }
 
-        for (int i = 0; i < MFCC_SIZE; i++) {
+        for (int i = 0; i < MFCC_SIZE + 1; i++) {
             fb[i] = convertFromMel(fb[i]);
-
-            fb[i] = filterLength * fb[i] / MFCC_FREQ;
+            fb[i] = (int)(fb[i] / MFCC_FREQ * (filterLength + 1));
         }
+        min = convertFromMel(min);
+        max = convertFromMel(max);
 
-        double[][] filterBanks = new double[(int) MFCC_SIZE][filterLength];
 
-        // TODO : make sure that it is right
+        min = (int)(min / MFCC_FREQ * (filterLength + 1));
+        max = (int)(max / MFCC_FREQ * (filterLength + 1));
 
-        for (int i = 0; i < MFCC_SIZE; i++) {
+        fb[0] = min;
+        fb[MFCC_SIZE + 1] = max;
+
+        double[][] filterBanks = new double[MFCC_SIZE][filterLength];
+
+        for (int m = 1; m < MFCC_SIZE + 1; m++) {
             for (int k = 0; k < filterLength; k++) {
-                if (i == 0) {
-                    filterBanks[i][k] = mel(fb[i], min, fb[i + 1], k);
-                } else if (i == MFCC_SIZE - 1) {
-                    filterBanks[i][k] = mel(fb[i], fb[i -1], max, k);
+                if (fb[m - 1] <= k && k <= fb[m]) {
+                    filterBanks[m - 1][k] = (k - fb[m - 1]) / (fb[m] - fb[m - 1]);
+                } else if (fb[m] < k && k <= fb[m + 1]) {
+                    filterBanks[m - 1][k] = (fb[m + 1] - k) / (fb[m + 1] - fb[m]);
                 } else {
-                    filterBanks[i][k] = mel(fb[i], fb[i - 1], fb[i + 1], k);
+                    filterBanks[m - 1][k] = 0;
                 }
             }
-
         }
 
         return filterBanks;
-    }
-
-    private static double mel(double current, double min, double max, int k) {
-        double result = 0;
-        if (min <= k && k < current) {
-            result = (k - min) / (current - min);
-        } else if (current < k && k <= max) {
-            result = (max - k) / (max - current);
-        } else if (k == current) {
-            result = 1;
-        }
-        return result;
     }
 
 
@@ -123,13 +173,14 @@ public class Mfcc {
             fourierTempRaw[i] = new Complex();
             for(int j = 0; j < length; j++)
             {
+                if (useWindow) {
+                    fourierTempRaw[i].multiply(window);
+                }
+
                 double temp = (2 * j * i * Math.PI) / length;
                 fourierTempRaw[i].real += data[j] * Math.cos(temp);
                 fourierTempRaw[i].img += data[j] * Math.sin(temp);
 
-                if (useWindow) {
-                    fourierTempRaw[i].multiply(window);
-                }
 
             }
 
@@ -214,10 +265,6 @@ public class Mfcc {
         }
     }
 
-
-
-
-
     public static double[] transform(Word word) {
         int sampleLength = 0;
         for (int i = word.getStartFrame(); i <= word.getEndFrame(); i++) {
@@ -233,10 +280,18 @@ public class Mfcc {
             position += length;
         }
 
+        DoubleFFT_1D fft = new DoubleFFT_1D(sampleLength);
         double[] fourierRaw;
+        sampleLength = (int)Math.pow(2, (int)MathCommon.log(sampleLength, 2));
         if (Settings.USE_FFT) {
-            sampleLength = (int)Math.pow(2, (int)Entropy.log(sampleLength, 2));
-            fourierRaw = fourierTransformFast(normalizedData, sampleLength, USE_WINDOW_FUNCTION);
+            double[] input = new double[sampleLength * 2];
+            for (int i = 0; i < sampleLength; i++) {
+                input[i] = normalizedData[i];
+
+            }
+            fft.complexForward(input);
+            fourierRaw = input;
+//            fourierRaw = fourierTransformFast(normalizedData, sampleLength, USE_WINDOW_FUNCTION);
         } else {
             fourierRaw = fourierTransform(normalizedData, sampleLength, USE_WINDOW_FUNCTION);
         }
@@ -249,8 +304,5 @@ public class Mfcc {
 
         return dctRaw;
     }
-
-
-
 
 }

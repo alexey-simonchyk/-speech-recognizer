@@ -59,6 +59,9 @@ public class SoundRecorder {
         //TODO: Временно
         lastRecord = new File("temp.wav");
 
+        if (!lastRecord.exists()) {
+            return null;
+        }
 
         byte[] result = null;
 
@@ -73,6 +76,8 @@ public class SoundRecorder {
         try {
             audioInputStream = AudioSystem.getAudioInputStream(lastRecord);
 
+            this.format = audioInputStream.getFormat();
+
             framesCount = audioInputStream.getFrameLength(); // number frames
 
             dataLength = framesCount * SAMPLE_SIZE_IN_BITS * NUMBER_CHANNELS / 8;
@@ -86,5 +91,23 @@ public class SoundRecorder {
         }
 
         return result;
+    }
+
+    public void getInputStream(byte[] data, String name) {
+        File file = new File(name);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ByteArrayInputStream input = new ByteArrayInputStream(data);
+        AudioInputStream audioInputStream = new AudioInputStream(input, format, data.length / format.getFrameSize());
+        try {
+            AudioSystem.write(audioInputStream, fileType, file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
