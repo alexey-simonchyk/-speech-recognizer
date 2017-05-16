@@ -102,6 +102,7 @@ public class SoundRecorder {
                 e.printStackTrace();
             }
         }
+
         ByteArrayInputStream input = new ByteArrayInputStream(data);
         AudioInputStream audioInputStream = new AudioInputStream(input, format, data.length / format.getFrameSize());
         try {

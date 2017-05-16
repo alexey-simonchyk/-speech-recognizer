@@ -1,5 +1,6 @@
 import com.bsuir.speech_recognizer.graphis.ApplicationWindow;
 import com.bsuir.speech_recognizer.hmm.SoundMap;
+import com.bsuir.speech_recognizer.hmm.SoundMapEntry;
 import com.bsuir.speech_recognizer.math.Entropy;
 import com.bsuir.speech_recognizer.math.Mfcc;
 import com.bsuir.speech_recognizer.math.Normalizer;
@@ -184,9 +185,9 @@ public class Main {
             }
 
 
-            for (int k = 0; k < Settings.MFCC_USE; k++) {
+            /*for (int k = 0; k < Settings.MFCC_USE; k++) {
                 temp[k] /= counter;
-            }
+            }*/
             word.result = temp;
         }
 
@@ -292,9 +293,9 @@ public class Main {
             }
 
 
-            for (int k = 0; k < Settings.MFCC_USE; k++) {
+           /* for (int k = 0; k < Settings.MFCC_USE; k++) {
                 temp[k] /= counter;
-            }
+            }*/
             word.result = temp;
         }
 
@@ -315,12 +316,12 @@ public class Main {
         recorder = new SoundRecorder(true);
 
         System.out.println("Recording started, to end enter `");
-        /*recorder.startRecording();
+        recorder.startRecording();
 
         Scanner scanner = new Scanner(System.in);
         while (!scanner.next().equals("`")){}
 
-        recorder.stopRecording();*/
+        recorder.stopRecording();
         System.out.println("Recording stopped");
 
         byte[] data = recorder.getBytes();
@@ -451,9 +452,9 @@ public class Main {
             }
 
 
-            for (int k = 0; k < Settings.MFCC_USE ; k++) {
+            /*for (int k = 0; k < Settings.MFCC_USE ; k++) {
                 temp[k] /= counter;
-            }
+            }*/
             word.result = temp;
             System.out.println("Res = " + Arrays.toString(temp));
             String tempWord = soundMap.getValue(new MfccValue(temp));
@@ -461,12 +462,14 @@ public class Main {
             result.add(tempWord);
 
 
-//            int length = word.getEndPosition() - word.getStartPosition();
-//            byte[] data = new byte[length];
-//            for (int i = 0; i < length; i++) {
-//                data[i] = word.getFrames().get(0).getFrameData()[word.getStartPosition() + i];
-//            }
-//            recorder.getInputStream(data, "Word" + fileCounter++ + ".wav");
+            recorder = new SoundRecorder(true);
+            int length = word.getEndPosition() - word.getStartPosition();
+            byte[] data = new byte[length];
+            for (int i = 0; i < length; i++) {
+                data[i] = word.getFrames().get(0).getFrameData()[word.getStartPosition() + i];
+            }
+            recorder.getBytes();
+            recorder.getInputStream(data, "Word" + fileCounter++ + ".wav");
         }
         return result;
     }
